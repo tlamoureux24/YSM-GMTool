@@ -157,7 +157,40 @@ public partial class MainForm : Form
     private static void AddActionControl(EntityBrowserControl browser, Control control)
     {
         control.Dock = DockStyle.Top;
+        control.Margin = new Padding(0, 0, 0, 8);
         browser.ActionsHostPanel.Controls.Add(control);
+
+        ResizeActionControlToContent(browser.ActionsHostPanel, control);
+        browser.ActionsHostPanel.Resize += (_, _) => ResizeActionControlToContent(browser.ActionsHostPanel, control);
+    }
+
+    private static void ResizeActionControlToContent(Control host, Control control)
+    {
+        if (control.IsDisposed)
+        {
+            return;
+        }
+
+        var targetWidth = Math.Max(120, host.ClientSize.Width - host.Padding.Horizontal - control.Margin.Horizontal);
+        control.Width = targetWidth;
+
+        var preferredHeight = control.GetPreferredSize(new Size(targetWidth, 0)).Height;
+        var measuredHeight = MeasureRequiredHeight(control);
+        var minHeight = control.MinimumSize.Height;
+        control.Height = Math.Max(minHeight, Math.Max(preferredHeight, measuredHeight));
+    }
+
+    private static int MeasureRequiredHeight(Control control)
+    {
+        var requiredBottom = control.Padding.Top;
+        foreach (Control child in control.Controls)
+        {
+            var childRequiredHeight = MeasureRequiredHeight(child);
+            var childBottom = child.Top + Math.Max(child.Height, childRequiredHeight) + child.Margin.Bottom;
+            requiredBottom = Math.Max(requiredBottom, childBottom);
+        }
+
+        return Math.Max(control.MinimumSize.Height, requiredBottom + control.Padding.Bottom);
     }
 
     private void ConfigureBrowserColumns()
@@ -316,7 +349,12 @@ public partial class MainForm : Form
                 x.SummonName,
                 x.CardName ?? string.Empty
             ],
-            _nameNormalizer);
+            _nameNormalizer,
+            x =>
+            [
+                x.SummonName,
+                x.CardName
+            ]);
 
         var allPresenters = new object?[]
         {
@@ -405,7 +443,14 @@ public partial class MainForm : Form
                     p.ErrorOccurred += OnPresenterError;
                     break;
                 case EntityBrowserPresenter<SummonRecord> p:
-                    p.SelectedRecordChanged += (_, selected) => _selectedSummon = selected;
+                    p.SelectedRecordChanged += (_, selected) =>
+                    {
+                        _selectedSummon = selected;
+                        if (selected is not null)
+                        {
+                            _summonsActions.SummonId = selected.SummonId;
+                        }
+                    };
                     p.ErrorOccurred += OnPresenterError;
                     break;
             }
@@ -436,7 +481,8 @@ public partial class MainForm : Form
         _npcsActions.CreateAddNpcToWorldCommandRequested += NpcsActions_CreateAddNpcToWorldCommandRequested;
         _npcsActions.CreateShowNpcCommandRequested += NpcsActions_CreateShowNpcCommandRequested;
         _npcsActions.CreateWarpToNpcCommandRequested += NpcsActions_CreateWarpToNpcCommandRequested;
-        _summonsActions.CreateSummonCommandRequested += SummonsActions_CreateSummonCommandRequested;
+        _summonsActions.AddSummonRequested += SummonsActions_AddSummonRequested;
+        _summonsActions.StageSummonRequested += SummonsActions_StageSummonRequested;
     }
 
     private async void MainForm_Load(object? sender, EventArgs e)
@@ -837,6 +883,23 @@ public partial class MainForm : Form
         return 0;
     }
 
+    private int ResolveSummonId()
+    {
+        var summonId = _summonsActions.SummonId;
+        if (summonId > 0)
+        {
+            return summonId;
+        }
+
+        if (_selectedSummon is not null)
+        {
+            return _selectedSummon.SummonId;
+        }
+
+        MessageBox.Show(this, "Select summon or enter Summon ID first.", "Summons", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        return 0;
+    }
+
     private void SkillsActions_LearnSkillRequested(object? sender, EventArgs e)
     {
         var skillId = ResolveSkillId();
@@ -1133,17 +1196,36 @@ public partial class MainForm : Form
         });
     }
 
-    private void SummonsActions_CreateSummonCommandRequested(object? sender, EventArgs e)
+    private void SummonsActions_AddSummonRequested(object? sender, EventArgs e)
     {
-        if (!RequireSelection(_selectedSummon, "summon"))
+        var summonId = ResolveSummonId();
+        if (summonId <= 0)
         {
             return;
         }
 
-        BuildAndDispatchCommand("spawnSummon", new Dictionary<string, object?>
+        if (_summonsActions.UseAddSummonStage)
         {
-            ["summonId"] = _selectedSummon!.SummonId,
-            ["amount"] = _summonsActions.Amount
+            BuildAndDispatchCommand("insertSummonByIdWithStage", new Dictionary<string, object?>
+            {
+                ["summonId"] = summonId,
+                ["stage"] = _summonsActions.AddSummonStage
+            });
+            return;
+        }
+
+        BuildAndDispatchCommand("insertSummonById", new Dictionary<string, object?>
+        {
+            ["summonId"] = summonId
+        });
+    }
+
+    private void SummonsActions_StageSummonRequested(object? sender, EventArgs e)
+    {
+        BuildAndDispatchCommand("stageSummon", new Dictionary<string, object?>
+        {
+            ["slot"] = _summonsActions.Slot,
+            ["stage"] = _summonsActions.Stage
         });
     }
 

@@ -37,5 +37,7 @@
   "addNpcToWorldForPlayer": "add_npc_to_world({x},{y},{layer},'{playerName}',{npcId})",
   "showNpc": "show_npc({x},{y},{npcId},{layer},{visible})",
   "warpToNpcCoordinates": "warp({x},{y},\"{playerName}\")",
-  "spawnSummon": "spawn_summon({summonId}, {amount})"
+  "insertSummonById": "insert_summon_by_summon_id({summonId})",
+  "insertSummonByIdWithStage": "insert_summon_by_summon_id({summonId},{stage})",
+  "stageSummon": "creature_enhance({slot},{stage})"
 }
