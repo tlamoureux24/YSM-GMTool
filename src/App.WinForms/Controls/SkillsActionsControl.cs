@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 namespace App.WinForms.Controls;
 
 public partial class SkillsActionsControl : UserControl
@@ -11,9 +13,34 @@ public partial class SkillsActionsControl : UserControl
 
     public event EventHandler? LearnAllJobSkillsRequested;
 
-    public event EventHandler? GetBasicSkillLevelRequested;
+    public event EventHandler? LearnCreatureSkillRequested;
 
-    public string TargetPlayer => txtTargetPlayer.Text.Trim();
+    public event EventHandler? SetSkillRequested;
+
+    public event EventHandler? RemoveSkillRequested;
+
+    public event EventHandler? LearnCreatureAllSkillRequested;
+
+    [Browsable(false)]
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    public int SkillId
+    {
+        get => (int)nudSkillId.Value;
+        set
+        {
+            if (value <= 0)
+            {
+                return;
+            }
+
+            var clamped = Math.Min(value, (int)nudSkillId.Maximum);
+            nudSkillId.Value = clamped;
+        }
+    }
+
+    public int SkillLevel => (int)nudSkillLevel.Value;
+
+    public int CreatureSlotIndex => (int)nudCreatureSlotIndex.Value;
 
     private void btnLearnSkill_Click(object sender, EventArgs e)
     {
@@ -25,8 +52,23 @@ public partial class SkillsActionsControl : UserControl
         LearnAllJobSkillsRequested?.Invoke(this, EventArgs.Empty);
     }
 
-    private void btnGetBasicSkillLevel_Click(object sender, EventArgs e)
+    private void btnLearnCreatureSkill_Click(object sender, EventArgs e)
     {
-        GetBasicSkillLevelRequested?.Invoke(this, EventArgs.Empty);
+        LearnCreatureSkillRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void btnSetSkill_Click(object sender, EventArgs e)
+    {
+        SetSkillRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void btnRemoveSkill_Click(object sender, EventArgs e)
+    {
+        RemoveSkillRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void btnLearnCreatureAllSkill_Click(object sender, EventArgs e)
+    {
+        LearnCreatureAllSkillRequested?.Invoke(this, EventArgs.Empty);
     }
 }

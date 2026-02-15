@@ -292,7 +292,14 @@ public partial class MainForm : Form
                     p.ErrorOccurred += OnPresenterError;
                     break;
                 case EntityBrowserPresenter<SkillRecord> p:
-                    p.SelectedRecordChanged += (_, selected) => _selectedSkill = selected;
+                    p.SelectedRecordChanged += (_, selected) =>
+                    {
+                        _selectedSkill = selected;
+                        if (selected is not null)
+                        {
+                            _skillsActions.SkillId = selected.SkillId;
+                        }
+                    };
                     p.ErrorOccurred += OnPresenterError;
                     break;
                 case EntityBrowserPresenter<StateRecord> p:
@@ -323,7 +330,10 @@ public partial class MainForm : Form
         _itemsActions.ChangeItemCodeRequested += ItemsActions_ChangeItemCodeRequested;
         _skillsActions.LearnSkillRequested += SkillsActions_LearnSkillRequested;
         _skillsActions.LearnAllJobSkillsRequested += SkillsActions_LearnAllJobSkillsRequested;
-        _skillsActions.GetBasicSkillLevelRequested += SkillsActions_GetBasicSkillLevelRequested;
+        _skillsActions.LearnCreatureSkillRequested += SkillsActions_LearnCreatureSkillRequested;
+        _skillsActions.SetSkillRequested += SkillsActions_SetSkillRequested;
+        _skillsActions.RemoveSkillRequested += SkillsActions_RemoveSkillRequested;
+        _skillsActions.LearnCreatureAllSkillRequested += SkillsActions_LearnCreatureAllSkillRequested;
         _buffsActions.AddBuffRequested += BuffsActions_AddBuffRequested;
         _buffsActions.RemoveBuffRequested += BuffsActions_RemoveBuffRequested;
         _buffsActions.SetTimedWorldStateRequested += BuffsActions_SetTimedWorldStateRequested;
@@ -678,39 +688,157 @@ public partial class MainForm : Form
         return 0;
     }
 
+    private int ResolveSkillId()
+    {
+        var skillId = _skillsActions.SkillId;
+        if (skillId > 0)
+        {
+            return skillId;
+        }
+
+        if (_selectedSkill is not null)
+        {
+            return _selectedSkill.SkillId;
+        }
+
+        MessageBox.Show(this, "Select skill or enter Skill ID first.", "Skills", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        return 0;
+    }
+
     private void SkillsActions_LearnSkillRequested(object? sender, EventArgs e)
     {
-        if (!RequireSelection(_selectedSkill, "skill"))
+        var skillId = ResolveSkillId();
+        if (skillId <= 0)
         {
             return;
         }
 
-        BuildAndDispatchCommand("learnSkill", new Dictionary<string, object?>
+        var targetPlayer = ResolveTargetPlayer();
+        if (targetPlayer.Equals("self", StringComparison.OrdinalIgnoreCase))
         {
-            ["target"] = ResolveTargetPlayer(_skillsActions.TargetPlayer),
-            ["skillId"] = _selectedSkill!.SkillId
+            BuildAndDispatchCommand("learnSkill", new Dictionary<string, object?>
+            {
+                ["skillId"] = skillId
+            });
+            return;
+        }
+
+        BuildAndDispatchCommand("learnSkillForPlayer", new Dictionary<string, object?>
+        {
+            ["skillId"] = skillId,
+            ["playerName"] = EscapeLuaSingleQuotedString(targetPlayer)
         });
     }
 
     private void SkillsActions_LearnAllJobSkillsRequested(object? sender, EventArgs e)
     {
-        BuildAndDispatchCommand("learnAllJobSkills", new Dictionary<string, object?>
+        var targetPlayer = ResolveTargetPlayer();
+        if (targetPlayer.Equals("self", StringComparison.OrdinalIgnoreCase))
         {
-            ["target"] = ResolveTargetPlayer(_skillsActions.TargetPlayer)
+            MessageBox.Show(this, "Select player in the right sidebar for Learn all skill.", "Skills", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        BuildAndDispatchCommand("learnAllSkill", new Dictionary<string, object?>
+        {
+            ["playerName"] = EscapeLuaSingleQuotedString(targetPlayer)
         });
     }
 
-    private void SkillsActions_GetBasicSkillLevelRequested(object? sender, EventArgs e)
+    private void SkillsActions_LearnCreatureSkillRequested(object? sender, EventArgs e)
     {
-        if (!RequireSelection(_selectedSkill, "skill"))
+        var skillId = ResolveSkillId();
+        if (skillId <= 0)
         {
             return;
         }
 
-        BuildAndDispatchCommand("getBasicSkillLevel", new Dictionary<string, object?>
+        var targetPlayer = ResolveTargetPlayer();
+        if (targetPlayer.Equals("self", StringComparison.OrdinalIgnoreCase))
         {
-            ["target"] = ResolveTargetPlayer(_skillsActions.TargetPlayer),
-            ["skillId"] = _selectedSkill!.SkillId
+            BuildAndDispatchCommand("learnCreatureSkillSelf", new Dictionary<string, object?>
+            {
+                ["skillId"] = skillId
+            });
+            return;
+        }
+
+        BuildAndDispatchCommand("learnCreatureSkill", new Dictionary<string, object?>
+        {
+            ["skillId"] = skillId,
+            ["playerName"] = EscapeLuaSingleQuotedString(targetPlayer)
+        });
+    }
+
+    private void SkillsActions_SetSkillRequested(object? sender, EventArgs e)
+    {
+        var skillId = ResolveSkillId();
+        if (skillId <= 0)
+        {
+            return;
+        }
+
+        var targetPlayer = ResolveTargetPlayer();
+        if (targetPlayer.Equals("self", StringComparison.OrdinalIgnoreCase))
+        {
+            BuildAndDispatchCommand("setSkill", new Dictionary<string, object?>
+            {
+                ["skillId"] = skillId,
+                ["level"] = _skillsActions.SkillLevel
+            });
+            return;
+        }
+
+        BuildAndDispatchCommand("setSkillForPlayer", new Dictionary<string, object?>
+        {
+            ["skillId"] = skillId,
+            ["level"] = _skillsActions.SkillLevel,
+            ["playerName"] = EscapeLuaSingleQuotedString(targetPlayer)
+        });
+    }
+
+    private void SkillsActions_RemoveSkillRequested(object? sender, EventArgs e)
+    {
+        var skillId = ResolveSkillId();
+        if (skillId <= 0)
+        {
+            return;
+        }
+
+        var targetPlayer = ResolveTargetPlayer();
+        if (targetPlayer.Equals("self", StringComparison.OrdinalIgnoreCase))
+        {
+            BuildAndDispatchCommand("removeSkill", new Dictionary<string, object?>
+            {
+                ["skillId"] = skillId
+            });
+            return;
+        }
+
+        BuildAndDispatchCommand("removeSkillForPlayer", new Dictionary<string, object?>
+        {
+            ["skillId"] = skillId,
+            ["playerName"] = EscapeLuaSingleQuotedString(targetPlayer)
+        });
+    }
+
+    private void SkillsActions_LearnCreatureAllSkillRequested(object? sender, EventArgs e)
+    {
+        var slotIndex = _skillsActions.CreatureSlotIndex;
+        var targetPlayer = ResolveTargetPlayer();
+        if (targetPlayer.Equals("self", StringComparison.OrdinalIgnoreCase))
+        {
+            BuildAndDispatchCommand("learnCreatureAllSkill", new Dictionary<string, object?>
+            {
+                ["slotIndex"] = slotIndex
+            });
+            return;
+        }
+
+        BuildAndDispatchCommand("learnCreatureAllSkillForPlayer", new Dictionary<string, object?>
+        {
+            ["slotIndex"] = slotIndex,
+            ["playerName"] = EscapeLuaSingleQuotedString(targetPlayer)
         });
     }
 
