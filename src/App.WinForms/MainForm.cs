@@ -303,7 +303,15 @@ public partial class MainForm : Form
                     p.ErrorOccurred += OnPresenterError;
                     break;
                 case EntityBrowserPresenter<StateRecord> p:
-                    p.SelectedRecordChanged += (_, selected) => _selectedState = selected;
+                    p.SelectedRecordChanged += (_, selected) =>
+                    {
+                        _selectedState = selected;
+                        if (selected is not null)
+                        {
+                            _buffsActions.StateId = selected.StateId;
+                            _buffsActions.BuffName = selected.BuffName;
+                        }
+                    };
                     p.ErrorOccurred += OnPresenterError;
                     break;
                 case EntityBrowserPresenter<NpcRecord> p:
@@ -334,9 +342,11 @@ public partial class MainForm : Form
         _skillsActions.SetSkillRequested += SkillsActions_SetSkillRequested;
         _skillsActions.RemoveSkillRequested += SkillsActions_RemoveSkillRequested;
         _skillsActions.LearnCreatureAllSkillRequested += SkillsActions_LearnCreatureAllSkillRequested;
-        _buffsActions.AddBuffRequested += BuffsActions_AddBuffRequested;
-        _buffsActions.RemoveBuffRequested += BuffsActions_RemoveBuffRequested;
-        _buffsActions.SetTimedWorldStateRequested += BuffsActions_SetTimedWorldStateRequested;
+        _buffsActions.AddTimedWorldStateRequested += BuffsActions_AddTimedWorldStateRequested;
+        _buffsActions.AddEventStateRequested += BuffsActions_AddEventStateRequested;
+        _buffsActions.RemoveEventStateRequested += BuffsActions_RemoveEventStateRequested;
+        _buffsActions.AddPlayerOrCreatureBuffRequested += BuffsActions_AddPlayerOrCreatureBuffRequested;
+        _buffsActions.RemovePlayerOrCreatureBuffRequested += BuffsActions_RemovePlayerOrCreatureBuffRequested;
         _npcsActions.CreateNpcMoveCommandRequested += NpcsActions_CreateNpcMoveCommandRequested;
         _summonsActions.CreateSummonCommandRequested += SummonsActions_CreateSummonCommandRequested;
     }
@@ -705,6 +715,23 @@ public partial class MainForm : Form
         return 0;
     }
 
+    private int ResolveStateId()
+    {
+        var stateId = _buffsActions.StateId;
+        if (stateId > 0)
+        {
+            return stateId;
+        }
+
+        if (_selectedState is not null)
+        {
+            return _selectedState.StateId;
+        }
+
+        MessageBox.Show(this, "Select buff/state or enter Buff-ID first.", "Buffs", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        return 0;
+    }
+
     private void SkillsActions_LearnSkillRequested(object? sender, EventArgs e)
     {
         var skillId = ResolveSkillId();
@@ -842,47 +869,96 @@ public partial class MainForm : Form
         });
     }
 
-    private void BuffsActions_AddBuffRequested(object? sender, EventArgs e)
+    private void BuffsActions_AddTimedWorldStateRequested(object? sender, EventArgs e)
     {
-        if (!RequireSelection(_selectedState, "state/buff"))
+        var stateId = ResolveStateId();
+        if (stateId <= 0)
         {
             return;
         }
 
-        BuildAndDispatchCommand("addBuff", new Dictionary<string, object?>
+        BuildAndDispatchCommand("castWorldState", new Dictionary<string, object?>
         {
-            ["target"] = ResolveTargetPlayer(),
-            ["stateId"] = _selectedState!.StateId,
-            ["duration"] = _buffsActions.DurationSeconds
+            ["stateId"] = stateId,
+            ["level"] = _buffsActions.BuffLevel,
+            ["durationMinutes"] = _buffsActions.DurationMinutes
         });
     }
 
-    private void BuffsActions_RemoveBuffRequested(object? sender, EventArgs e)
+    private void BuffsActions_AddEventStateRequested(object? sender, EventArgs e)
     {
-        if (!RequireSelection(_selectedState, "state/buff"))
+        var stateId = ResolveStateId();
+        if (stateId <= 0)
         {
             return;
         }
 
-        BuildAndDispatchCommand("removeBuff", new Dictionary<string, object?>
+        BuildAndDispatchCommand("addEventState", new Dictionary<string, object?>
         {
-            ["target"] = ResolveTargetPlayer(),
-            ["stateId"] = _selectedState!.StateId
+            ["stateId"] = stateId,
+            ["level"] = _buffsActions.BuffLevel
         });
     }
 
-    private void BuffsActions_SetTimedWorldStateRequested(object? sender, EventArgs e)
+    private void BuffsActions_RemoveEventStateRequested(object? sender, EventArgs e)
     {
-        if (!RequireSelection(_selectedState, "state/buff"))
+        var stateId = ResolveStateId();
+        if (stateId <= 0)
         {
             return;
         }
 
-        BuildAndDispatchCommand("setTimedWorldState", new Dictionary<string, object?>
+        BuildAndDispatchCommand("removeEventState", new Dictionary<string, object?>
         {
-            ["stateId"] = _selectedState!.StateId,
-            ["value"] = string.IsNullOrWhiteSpace(_buffsActions.WorldStateValue) ? "1" : _buffsActions.WorldStateValue,
-            ["duration"] = _buffsActions.DurationSeconds
+            ["stateId"] = stateId
+        });
+    }
+
+    private void BuffsActions_AddPlayerOrCreatureBuffRequested(object? sender, EventArgs e)
+    {
+        var stateId = ResolveStateId();
+        if (stateId <= 0)
+        {
+            return;
+        }
+
+        var targetPlayer = ResolveTargetPlayer();
+        if (targetPlayer.Equals("self", StringComparison.OrdinalIgnoreCase))
+        {
+            MessageBox.Show(this, "Select player in the right sidebar.", "Buffs", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        var template = _buffsActions.IsSummonTarget ? "addCreatureState" : "addPlayerState";
+        BuildAndDispatchCommand(template, new Dictionary<string, object?>
+        {
+            ["stateId"] = stateId,
+            ["level"] = _buffsActions.BuffLevel,
+            ["durationMinutes"] = _buffsActions.DurationMinutes,
+            ["playerName"] = EscapeLuaSingleQuotedString(targetPlayer)
+        });
+    }
+
+    private void BuffsActions_RemovePlayerOrCreatureBuffRequested(object? sender, EventArgs e)
+    {
+        var stateId = ResolveStateId();
+        if (stateId <= 0)
+        {
+            return;
+        }
+
+        var targetPlayer = ResolveTargetPlayer();
+        if (targetPlayer.Equals("self", StringComparison.OrdinalIgnoreCase))
+        {
+            MessageBox.Show(this, "Select player in the right sidebar.", "Buffs", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        var template = _buffsActions.IsSummonTarget ? "removeCreatureState" : "removePlayerState";
+        BuildAndDispatchCommand(template, new Dictionary<string, object?>
+        {
+            ["stateId"] = stateId,
+            ["playerName"] = EscapeLuaSingleQuotedString(targetPlayer)
         });
     }
 

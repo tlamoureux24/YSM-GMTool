@@ -26,9 +26,13 @@
   "resetSummonSkillForPlayer": "reset_summon_skill({handleOrIndex},{forceReset},'{playerName}')",
   "learnCreatureSkillSelf": "creature_learn_skill({skillId}, gcv(get_creature_handle(0), \"handle\"))",
   "learnCreatureSkill": "creature_learn_skill({skillId}, gcv(get_creature_handle(0), \"handle\"), '{playerName}')",
-  "addBuff": "add_buff('{target}', {stateId}, {duration})",
-  "removeBuff": "remove_buff('{target}', {stateId})",
-  "setTimedWorldState": "set_timed_world_state({stateId}, {value}, {duration})",
+  "castWorldState": "cast_world_state({stateId},{level},{durationMinutes}*100*60)",
+  "addEventState": "add_event_state({stateId},{level})",
+  "removeEventState": "remove_event_state({stateId},get_state_level({stateId}))",
+  "addPlayerState": "add_state({stateId},{level},{durationMinutes}*100*60,'{playerName}')",
+  "removePlayerState": "remove_state({stateId},get_state_level({stateId},'{playerName}'),'{playerName}')",
+  "addCreatureState": "add_cstate({stateId},{level},{durationMinutes}*100*60,'{playerName}')",
+  "removeCreatureState": "remove_cstate({stateId},get_state_level({stateId},'{playerName}'),'{playerName}')",
   "moveToNpc": "move_to_npc({npcId}, {x}, {y}, {layer})",
   "spawnSummon": "spawn_summon({summonId}, {amount})"
 }
