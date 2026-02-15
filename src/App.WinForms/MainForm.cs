@@ -279,7 +279,16 @@ public partial class MainForm : Form
                     p.ErrorOccurred += OnPresenterError;
                     break;
                 case EntityBrowserPresenter<ItemRecord> p:
-                    p.SelectedRecordChanged += (_, selected) => _selectedItem = selected;
+                    p.SelectedRecordChanged += (_, selected) =>
+                    {
+                        _selectedItem = selected;
+                        if (selected is not null)
+                        {
+                            _itemsActions.ItemId = selected.ItemId;
+                            _itemsActions.ItemName = selected.NameEn;
+                            _itemsActions.ModifyItemCode = selected.ItemId;
+                        }
+                    };
                     p.ErrorOccurred += OnPresenterError;
                     break;
                 case EntityBrowserPresenter<SkillRecord> p:
@@ -306,7 +315,12 @@ public partial class MainForm : Form
     {
         _playerCheckerActions.CreateCheckCommandRequested += PlayerCheckerActions_CreateCheckCommandRequested;
         _monsterActions.CreateCommandRequested += MonsterActions_CreateCommandRequested;
-        _itemsActions.CreateGiveCommandRequested += ItemsActions_CreateGiveCommandRequested;
+        _itemsActions.AddYourselfRequested += ItemsActions_AddYourselfRequested;
+        _itemsActions.GiveOtherPlayerRequested += ItemsActions_GiveOtherPlayerRequested;
+        _itemsActions.EditLevelRequested += ItemsActions_EditLevelRequested;
+        _itemsActions.EditEnhanceRequested += ItemsActions_EditEnhanceRequested;
+        _itemsActions.ChangeAppearanceRequested += ItemsActions_ChangeAppearanceRequested;
+        _itemsActions.ChangeItemCodeRequested += ItemsActions_ChangeItemCodeRequested;
         _skillsActions.LearnSkillRequested += SkillsActions_LearnSkillRequested;
         _skillsActions.LearnAllJobSkillsRequested += SkillsActions_LearnAllJobSkillsRequested;
         _skillsActions.GetBasicSkillLevelRequested += SkillsActions_GetBasicSkillLevelRequested;
@@ -481,43 +495,187 @@ public partial class MainForm : Form
         });
     }
 
-    private void ItemsActions_CreateGiveCommandRequested(object? sender, EventArgs e)
+    private void ItemsActions_AddYourselfRequested(object? sender, EventArgs e)
     {
-        if (!RequireSelection(_selectedItem, "item"))
+        var itemId = ResolveItemId();
+        if (itemId <= 0)
         {
             return;
         }
 
-        if (_itemsActions.GiveToOtherPlayer)
+        BuildAndDispatchCommand("insertItemSelf", new Dictionary<string, object?>
         {
-            var targetPlayer = ResolveTargetPlayer(_itemsActions.TargetPlayer);
+            ["itemId"] = itemId,
+            ["amount"] = _itemsActions.Amount,
+            ["enhance"] = _itemsActions.Enhance,
+            ["level"] = _itemsActions.Level,
+            ["statusFlag"] = _itemsActions.StatusFlag
+        });
+    }
+
+    private void ItemsActions_GiveOtherPlayerRequested(object? sender, EventArgs e)
+    {
+        var itemId = ResolveItemId();
+        if (itemId <= 0)
+        {
+            return;
+        }
+
+        var targetPlayer = ResolveTargetPlayer();
+        if (targetPlayer.Equals("self", StringComparison.OrdinalIgnoreCase))
+        {
+            MessageBox.Show(this, "Select player in the right sidebar for 'Give other player'.", "Items", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        BuildAndDispatchCommand("insertItemPlayer", new Dictionary<string, object?>
+        {
+            ["itemId"] = itemId,
+            ["amount"] = _itemsActions.Amount,
+            ["enhance"] = _itemsActions.Enhance,
+            ["level"] = _itemsActions.Level,
+            ["statusFlag"] = _itemsActions.StatusFlag,
+            ["playerName"] = EscapeLuaSingleQuotedString(targetPlayer)
+        });
+    }
+
+    private void ItemsActions_EditLevelRequested(object? sender, EventArgs e)
+    {
+        if (_itemsActions.ApplyToOtherPlayer)
+        {
+            var targetPlayer = ResolveTargetPlayer();
             if (targetPlayer.Equals("self", StringComparison.OrdinalIgnoreCase))
             {
-                MessageBox.Show(this, "Target player is required for 'Other player' mode.", "Items", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, "Select player in the right sidebar for 'Other' mode.", "Items", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            BuildAndDispatchCommand("giveItemToPlayer", new Dictionary<string, object?>
+            BuildAndDispatchCommand("setWearItemLevelPlayer", new Dictionary<string, object?>
             {
-                ["target"] = targetPlayer,
-                ["itemId"] = _selectedItem!.ItemId,
-                ["amount"] = _itemsActions.Amount,
-                ["level"] = _itemsActions.Level,
-                ["enhance"] = _itemsActions.Enhance,
-                ["itmcode"] = _itemsActions.ItmCode
+                ["wearSlot"] = _itemsActions.WearSlotIndex,
+                ["playerName"] = EscapeLuaSingleQuotedString(targetPlayer),
+                ["level"] = _itemsActions.ModifyLevel
             });
+            return;
         }
-        else
+
+        BuildAndDispatchCommand("setWearItemLevelOwn", new Dictionary<string, object?>
         {
-            BuildAndDispatchCommand("addItemToSelf", new Dictionary<string, object?>
+            ["wearSlot"] = _itemsActions.WearSlotIndex,
+            ["level"] = _itemsActions.ModifyLevel
+        });
+    }
+
+    private void ItemsActions_EditEnhanceRequested(object? sender, EventArgs e)
+    {
+        if (_itemsActions.ApplyToOtherPlayer)
+        {
+            var targetPlayer = ResolveTargetPlayer();
+            if (targetPlayer.Equals("self", StringComparison.OrdinalIgnoreCase))
             {
-                ["itemId"] = _selectedItem!.ItemId,
-                ["amount"] = _itemsActions.Amount,
-                ["level"] = _itemsActions.Level,
-                ["enhance"] = _itemsActions.Enhance,
-                ["itmcode"] = _itemsActions.ItmCode
+                MessageBox.Show(this, "Select player in the right sidebar for 'Other' mode.", "Items", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            BuildAndDispatchCommand("setWearItemEnhancePlayer", new Dictionary<string, object?>
+            {
+                ["wearSlot"] = _itemsActions.WearSlotIndex,
+                ["playerName"] = EscapeLuaSingleQuotedString(targetPlayer),
+                ["enhance"] = _itemsActions.ModifyEnhance
             });
+            return;
         }
+
+        BuildAndDispatchCommand("setWearItemEnhanceOwn", new Dictionary<string, object?>
+        {
+            ["wearSlot"] = _itemsActions.WearSlotIndex,
+            ["enhance"] = _itemsActions.ModifyEnhance
+        });
+    }
+
+    private void ItemsActions_ChangeAppearanceRequested(object? sender, EventArgs e)
+    {
+        var itemCode = _itemsActions.ModifyItemCode;
+        if (itemCode <= 0)
+        {
+            MessageBox.Show(this, "Itemcode must be greater than 0.", "Items", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        if (_itemsActions.ApplyToOtherPlayer)
+        {
+            var targetPlayer = ResolveTargetPlayer();
+            if (targetPlayer.Equals("self", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show(this, "Select player in the right sidebar for 'Other' mode.", "Items", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            BuildAndDispatchCommand("setWearItemAppearancePlayer", new Dictionary<string, object?>
+            {
+                ["wearSlot"] = _itemsActions.WearSlotIndex,
+                ["playerName"] = EscapeLuaSingleQuotedString(targetPlayer),
+                ["itemCode"] = itemCode
+            });
+            return;
+        }
+
+        BuildAndDispatchCommand("setWearItemAppearanceOwn", new Dictionary<string, object?>
+        {
+            ["wearSlot"] = _itemsActions.WearSlotIndex,
+            ["itemCode"] = itemCode
+        });
+    }
+
+    private void ItemsActions_ChangeItemCodeRequested(object? sender, EventArgs e)
+    {
+        var itemCode = _itemsActions.ModifyItemCode;
+        if (itemCode <= 0)
+        {
+            MessageBox.Show(this, "Itemcode must be greater than 0.", "Items", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        if (_itemsActions.ApplyToOtherPlayer)
+        {
+            var targetPlayer = ResolveTargetPlayer();
+            if (targetPlayer.Equals("self", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show(this, "Select player in the right sidebar for 'Other' mode.", "Items", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            BuildAndDispatchCommand("changeWearItemCodePlayer", new Dictionary<string, object?>
+            {
+                ["wearSlot"] = _itemsActions.WearSlotIndex,
+                ["playerName"] = EscapeLuaSingleQuotedString(targetPlayer),
+                ["itemCode"] = itemCode
+            });
+            return;
+        }
+
+        BuildAndDispatchCommand("changeWearItemCodeOwn", new Dictionary<string, object?>
+        {
+            ["wearSlot"] = _itemsActions.WearSlotIndex,
+            ["itemCode"] = itemCode
+        });
+    }
+
+    private int ResolveItemId()
+    {
+        var itemId = _itemsActions.ItemId;
+        if (itemId > 0)
+        {
+            return itemId;
+        }
+
+        if (_selectedItem is not null)
+        {
+            return _selectedItem.ItemId;
+        }
+
+        MessageBox.Show(this, "Select item or enter Item ID first.", "Items", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        return 0;
     }
 
     private void SkillsActions_LearnSkillRequested(object? sender, EventArgs e)
