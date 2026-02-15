@@ -202,8 +202,9 @@ public partial class MainForm : Form
             new BrowserColumnDefinition("npcTitle", "Name", 420, true),
             new BrowserColumnDefinition("x", "X", 90),
             new BrowserColumnDefinition("y", "Y", 90),
-            new BrowserColumnDefinition("localFlag", "Flag", 95)
+            new BrowserColumnDefinition("contactScript", "Contact script", 280, true)
         ]);
+        browserNpcs.ConfigureSecondarySearch(true, "for Contact script");
 
         browserSummons.ConfigureColumns(
         [
@@ -295,9 +296,14 @@ public partial class MainForm : Form
                 x.NpcTitle,
                 x.X?.ToString("0.###") ?? string.Empty,
                 x.Y?.ToString("0.###") ?? string.Empty,
-                x.LocalFlag ?? 0
+                x.ContactScript ?? string.Empty
             ],
-            _nameNormalizer);
+            _nameNormalizer,
+            x =>
+            [
+                x.NpcTitle
+            ],
+            x => x.ContactScript);
 
         _summonsPresenter = new EntityBrowserPresenter<SummonRecord>(
             browserSummons,
@@ -384,7 +390,18 @@ public partial class MainForm : Form
                     p.ErrorOccurred += OnPresenterError;
                     break;
                 case EntityBrowserPresenter<NpcRecord> p:
-                    p.SelectedRecordChanged += (_, selected) => _selectedNpc = selected;
+                    p.SelectedRecordChanged += (_, selected) =>
+                    {
+                        _selectedNpc = selected;
+                        if (selected is not null)
+                        {
+                            _npcsActions.NpcId = selected.NpcId;
+                            _npcsActions.NpcName = selected.NpcTitle;
+                            _npcsActions.ContactScript = selected.ContactScript ?? string.Empty;
+                            _npcsActions.NpcX = (int)Math.Round(selected.X ?? 0);
+                            _npcsActions.NpcY = (int)Math.Round(selected.Y ?? 0);
+                        }
+                    };
                     p.ErrorOccurred += OnPresenterError;
                     break;
                 case EntityBrowserPresenter<SummonRecord> p:
@@ -416,7 +433,9 @@ public partial class MainForm : Form
         _buffsActions.RemoveEventStateRequested += BuffsActions_RemoveEventStateRequested;
         _buffsActions.AddPlayerOrCreatureBuffRequested += BuffsActions_AddPlayerOrCreatureBuffRequested;
         _buffsActions.RemovePlayerOrCreatureBuffRequested += BuffsActions_RemovePlayerOrCreatureBuffRequested;
-        _npcsActions.CreateNpcMoveCommandRequested += NpcsActions_CreateNpcMoveCommandRequested;
+        _npcsActions.CreateAddNpcToWorldCommandRequested += NpcsActions_CreateAddNpcToWorldCommandRequested;
+        _npcsActions.CreateShowNpcCommandRequested += NpcsActions_CreateShowNpcCommandRequested;
+        _npcsActions.CreateWarpToNpcCommandRequested += NpcsActions_CreateWarpToNpcCommandRequested;
         _summonsActions.CreateSummonCommandRequested += SummonsActions_CreateSummonCommandRequested;
     }
 
@@ -801,6 +820,23 @@ public partial class MainForm : Form
         return 0;
     }
 
+    private int ResolveNpcId()
+    {
+        var npcId = _npcsActions.NpcId;
+        if (npcId > 0)
+        {
+            return npcId;
+        }
+
+        if (_selectedNpc is not null)
+        {
+            return _selectedNpc.NpcId;
+        }
+
+        MessageBox.Show(this, "Select npc or enter NPC ID first.", "NPC", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        return 0;
+    }
+
     private void SkillsActions_LearnSkillRequested(object? sender, EventArgs e)
     {
         var skillId = ResolveSkillId();
@@ -1031,19 +1067,69 @@ public partial class MainForm : Form
         });
     }
 
-    private void NpcsActions_CreateNpcMoveCommandRequested(object? sender, EventArgs e)
+    private void NpcsActions_CreateAddNpcToWorldCommandRequested(object? sender, EventArgs e)
     {
-        if (!RequireSelection(_selectedNpc, "npc"))
+        var npcId = ResolveNpcId();
+        if (npcId <= 0)
         {
             return;
         }
 
-        BuildAndDispatchCommand("moveToNpc", new Dictionary<string, object?>
+        var targetPlayer = ResolveTargetPlayer();
+        if (targetPlayer.Equals("self", StringComparison.OrdinalIgnoreCase))
         {
-            ["npcId"] = _selectedNpc!.NpcId,
-            ["x"] = _selectedNpc.X ?? 0,
-            ["y"] = _selectedNpc.Y ?? 0,
-            ["layer"] = _npcsActions.Layer
+            BuildAndDispatchCommand("addNpcToWorld", new Dictionary<string, object?>
+            {
+                ["x"] = _npcsActions.NpcX,
+                ["y"] = _npcsActions.NpcY,
+                ["layer"] = _npcsActions.Layer,
+                ["npcId"] = npcId
+            });
+            return;
+        }
+
+        BuildAndDispatchCommand("addNpcToWorldForPlayer", new Dictionary<string, object?>
+        {
+            ["x"] = _npcsActions.NpcX,
+            ["y"] = _npcsActions.NpcY,
+            ["layer"] = _npcsActions.Layer,
+            ["playerName"] = EscapeLuaSingleQuotedString(targetPlayer),
+            ["npcId"] = npcId
+        });
+    }
+
+    private void NpcsActions_CreateShowNpcCommandRequested(object? sender, EventArgs e)
+    {
+        var npcId = ResolveNpcId();
+        if (npcId <= 0)
+        {
+            return;
+        }
+
+        BuildAndDispatchCommand("showNpc", new Dictionary<string, object?>
+        {
+            ["x"] = _npcsActions.NpcX,
+            ["y"] = _npcsActions.NpcY,
+            ["npcId"] = npcId,
+            ["layer"] = _npcsActions.Layer,
+            ["visible"] = _npcsActions.VisibleFlag
+        });
+    }
+
+    private void NpcsActions_CreateWarpToNpcCommandRequested(object? sender, EventArgs e)
+    {
+        var targetPlayer = ResolveTargetPlayer();
+        if (targetPlayer.Equals("self", StringComparison.OrdinalIgnoreCase))
+        {
+            MessageBox.Show(this, "Select player in the right sidebar for warp to NPC.", "NPC", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        BuildAndDispatchCommand("warpToNpcCoordinates", new Dictionary<string, object?>
+        {
+            ["x"] = _npcsActions.NpcX,
+            ["y"] = _npcsActions.NpcY,
+            ["playerName"] = EscapeLuaDoubleQuotedString(targetPlayer)
         });
     }
 
@@ -1081,6 +1167,9 @@ public partial class MainForm : Form
 
     private static string EscapeLuaSingleQuotedString(string value)
         => value.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("'", "\\'", StringComparison.Ordinal);
+
+    private static string EscapeLuaDoubleQuotedString(string value)
+        => value.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "\\\"", StringComparison.Ordinal);
 
     private static bool RequireSelection<T>(T? selected, string entityName) where T : class
     {

@@ -29,7 +29,35 @@ public partial class EntityBrowserControl : UserControl
 
     public string SearchText => txtSearch.Text;
 
-    public SearchMode CurrentSearchMode => rbSearchById.Checked ? SearchMode.ById : SearchMode.ByName;
+    public SearchMode CurrentSearchMode
+    {
+        get
+        {
+            if (rbSearchById.Checked)
+            {
+                return SearchMode.ById;
+            }
+
+            if (rbSearchByContactScript.Visible && rbSearchByContactScript.Checked)
+            {
+                return SearchMode.ByContactScript;
+            }
+
+            return SearchMode.ByName;
+        }
+    }
+
+    public void ConfigureSecondarySearch(bool enabled, string label = "Search by Contact script")
+    {
+        rbSearchByContactScript.Text = label;
+        rbSearchByContactScript.Visible = enabled;
+        rbSearchByContactScript.Enabled = enabled;
+
+        if (!enabled && rbSearchByContactScript.Checked)
+        {
+            rbSearchByName.Checked = true;
+        }
+    }
 
     public void ConfigureColumns(IReadOnlyList<BrowserColumnDefinition> columns)
     {

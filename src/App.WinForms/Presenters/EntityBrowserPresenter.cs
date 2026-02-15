@@ -12,6 +12,7 @@ public sealed class EntityBrowserPresenter<TRecord>
     private readonly Func<TRecord, int> _idSelector;
     private readonly Func<TRecord, string?> _nameSelector;
     private readonly Func<TRecord, IEnumerable<string?>>? _searchableTextSelector;
+    private readonly Func<TRecord, string?>? _secondarySearchTextSelector;
     private readonly Func<TRecord, object?[]> _rowValuesSelector;
     private readonly INameNormalizer _normalizer;
 
@@ -32,7 +33,8 @@ public sealed class EntityBrowserPresenter<TRecord>
         Func<TRecord, string?> nameSelector,
         Func<TRecord, object?[]> rowValuesSelector,
         INameNormalizer normalizer,
-        Func<TRecord, IEnumerable<string?>>? searchableTextSelector = null)
+        Func<TRecord, IEnumerable<string?>>? searchableTextSelector = null,
+        Func<TRecord, string?>? secondarySearchTextSelector = null)
     {
         _view = view;
         _loadAllAsync = loadAllAsync;
@@ -41,6 +43,7 @@ public sealed class EntityBrowserPresenter<TRecord>
         _rowValuesSelector = rowValuesSelector;
         _normalizer = normalizer;
         _searchableTextSelector = searchableTextSelector;
+        _secondarySearchTextSelector = secondarySearchTextSelector;
 
         _view.LoadAllRequested += OnLoadAllRequested;
         _view.FilterRequested += OnFilterRequested;
@@ -136,9 +139,12 @@ public sealed class EntityBrowserPresenter<TRecord>
                 {
                     token.ThrowIfCancellationRequested();
 
-                    var match = mode == SearchMode.ById
-                        ? indexed.NormalizedId.Contains(normalizedQuery, StringComparison.Ordinal)
-                        : indexed.NormalizedSearchText.Contains(normalizedQuery, StringComparison.Ordinal);
+                    var match = mode switch
+                    {
+                        SearchMode.ById => indexed.NormalizedId.Contains(normalizedQuery, StringComparison.Ordinal),
+                        SearchMode.ByContactScript => indexed.NormalizedSecondarySearchText.Contains(normalizedQuery, StringComparison.Ordinal),
+                        _ => indexed.NormalizedSearchText.Contains(normalizedQuery, StringComparison.Ordinal)
+                    };
 
                     if (match)
                     {
@@ -175,11 +181,13 @@ public sealed class EntityBrowserPresenter<TRecord>
             var searchableTextParts = (_searchableTextSelector?.Invoke(record) ?? [_nameSelector(record)])
                 .Where(x => !string.IsNullOrWhiteSpace(x));
             var searchableText = string.Join(' ', searchableTextParts);
+            var secondaryText = _secondarySearchTextSelector?.Invoke(record);
 
             index.Add(new SearchIndexedRecord<TRecord>(
                 record,
                 _normalizer.NormalizeForSearch(_idSelector(record).ToString(CultureInfo.InvariantCulture), removeDiacritics: false),
                 _normalizer.NormalizeForSearch(searchableText),
+                _normalizer.NormalizeForSearch(secondaryText),
                 row));
         }
 

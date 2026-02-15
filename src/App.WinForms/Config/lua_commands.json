@@ -33,6 +33,9 @@
   "removePlayerState": "remove_state({stateId},get_state_level({stateId},'{playerName}'),'{playerName}')",
   "addCreatureState": "add_cstate({stateId},{level},{durationMinutes}*100*60,'{playerName}')",
   "removeCreatureState": "remove_cstate({stateId},get_state_level({stateId},'{playerName}'),'{playerName}')",
-  "moveToNpc": "move_to_npc({npcId}, {x}, {y}, {layer})",
+  "addNpcToWorld": "add_npc_to_world({x},{y},{layer},{npcId})",
+  "addNpcToWorldForPlayer": "add_npc_to_world({x},{y},{layer},'{playerName}',{npcId})",
+  "showNpc": "show_npc({x},{y},{npcId},{layer},{visible})",
+  "warpToNpcCoordinates": "warp({x},{y},\"{playerName}\")",
   "spawnSummon": "spawn_summon({summonId}, {amount})"
 }

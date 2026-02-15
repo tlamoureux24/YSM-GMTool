@@ -10,7 +10,5 @@ public sealed class NpcRecord
 
     public double? Y { get; init; }
 
-    public int? LocalFlag { get; init; }
-
     public string? ContactScript { get; init; }
 }

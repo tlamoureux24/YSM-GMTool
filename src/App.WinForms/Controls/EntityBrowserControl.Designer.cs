@@ -7,6 +7,7 @@ partial class EntityBrowserControl
     private DataGridView gridRecords;
     private TableLayoutPanel tlpCenter;
     private GroupBox gbSearch;
+    private RadioButton rbSearchByContactScript;
     private RadioButton rbSearchByName;
     private RadioButton rbSearchById;
     private TextBox txtSearch;
@@ -34,6 +35,7 @@ partial class EntityBrowserControl
         btnLoadAll = new Button();
         btnSearch = new Button();
         txtSearch = new TextBox();
+        rbSearchByContactScript = new RadioButton();
         rbSearchByName = new RadioButton();
         rbSearchById = new RadioButton();
         pnlActionsHost = new Panel();
@@ -99,6 +101,7 @@ partial class EntityBrowserControl
         gbSearch.Controls.Add(btnLoadAll);
         gbSearch.Controls.Add(btnSearch);
         gbSearch.Controls.Add(txtSearch);
+        gbSearch.Controls.Add(rbSearchByContactScript);
         gbSearch.Controls.Add(rbSearchByName);
         gbSearch.Controls.Add(rbSearchById);
         gbSearch.Dock = DockStyle.Fill;
@@ -137,6 +140,18 @@ partial class EntityBrowserControl
         txtSearch.Size = new Size(176, 27);
         txtSearch.TabIndex = 2;
         txtSearch.TextChanged += txtSearch_TextChanged;
+        // 
+        // rbSearchByContactScript
+        // 
+        rbSearchByContactScript.AutoSize = true;
+        rbSearchByContactScript.Location = new Point(264, 34);
+        rbSearchByContactScript.Name = "rbSearchByContactScript";
+        rbSearchByContactScript.Size = new Size(191, 24);
+        rbSearchByContactScript.TabIndex = 5;
+        rbSearchByContactScript.Text = "Search by Contact script";
+        rbSearchByContactScript.UseVisualStyleBackColor = true;
+        rbSearchByContactScript.Visible = false;
+        rbSearchByContactScript.CheckedChanged += rbSearchBy_CheckedChanged;
         // 
         // rbSearchByName
         // 
