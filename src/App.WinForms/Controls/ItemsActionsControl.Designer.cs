@@ -178,7 +178,7 @@ partial class ItemsActionsControl
         gbInsertItem.Size = new Size(434, 200);
         gbInsertItem.TabIndex = 0;
         gbInsertItem.TabStop = false;
-        gbInsertItem.Text = "Insert Item";
+        gbInsertItem.Text = "Give / Insert Commands";
         // 
         // tlpInsert
         // 
@@ -367,7 +367,7 @@ partial class ItemsActionsControl
         gbModifyItem.Size = new Size(434, 236);
         gbModifyItem.TabIndex = 1;
         gbModifyItem.TabStop = false;
-        gbModifyItem.Text = "Modify Item";
+        gbModifyItem.Text = "Modify Equipped Item";
         // 
         // tlpModify
         // 

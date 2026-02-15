@@ -4,17 +4,23 @@ partial class SkillsActionsControl
 {
     private System.ComponentModel.IContainer components = null;
     private GroupBox gbSkillsActions;
-    private TableLayoutPanel tlp;
+    private TableLayoutPanel tlpRoot;
+    private GroupBox gbSelected;
+    private TableLayoutPanel tlpSelected;
     private Label lblSkillId;
     private NumericUpDown nudSkillId;
     private Label lblSkillLevel;
     private NumericUpDown nudSkillLevel;
-    private Label lblCreatureSlotIndex;
-    private NumericUpDown nudCreatureSlotIndex;
+    private GroupBox gbPlayerSkills;
+    private FlowLayoutPanel flpPlayerSkills;
     private Button btnLearnSkill;
     private Button btnSetSkill;
     private Button btnRemoveSkill;
     private Button btnLearnAllJobSkills;
+    private GroupBox gbCreatureSkills;
+    private TableLayoutPanel tlpCreature;
+    private Label lblCreatureSlotIndex;
+    private NumericUpDown nudCreatureSlotIndex;
     private Button btnLearnCreatureSkill;
     private Button btnLearnCreatureAllSkill;
 
@@ -31,70 +37,96 @@ partial class SkillsActionsControl
     private void InitializeComponent()
     {
         gbSkillsActions = new GroupBox();
-        tlp = new TableLayoutPanel();
+        tlpRoot = new TableLayoutPanel();
+        gbSelected = new GroupBox();
+        tlpSelected = new TableLayoutPanel();
         lblSkillId = new Label();
         nudSkillId = new NumericUpDown();
         lblSkillLevel = new Label();
         nudSkillLevel = new NumericUpDown();
-        lblCreatureSlotIndex = new Label();
-        nudCreatureSlotIndex = new NumericUpDown();
+        gbPlayerSkills = new GroupBox();
+        flpPlayerSkills = new FlowLayoutPanel();
         btnLearnSkill = new Button();
         btnSetSkill = new Button();
         btnRemoveSkill = new Button();
         btnLearnAllJobSkills = new Button();
+        gbCreatureSkills = new GroupBox();
+        tlpCreature = new TableLayoutPanel();
+        lblCreatureSlotIndex = new Label();
+        nudCreatureSlotIndex = new NumericUpDown();
         btnLearnCreatureSkill = new Button();
         btnLearnCreatureAllSkill = new Button();
         gbSkillsActions.SuspendLayout();
-        tlp.SuspendLayout();
+        tlpRoot.SuspendLayout();
+        gbSelected.SuspendLayout();
+        tlpSelected.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)nudSkillId).BeginInit();
         ((System.ComponentModel.ISupportInitialize)nudSkillLevel).BeginInit();
+        gbPlayerSkills.SuspendLayout();
+        flpPlayerSkills.SuspendLayout();
+        gbCreatureSkills.SuspendLayout();
+        tlpCreature.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)nudCreatureSlotIndex).BeginInit();
         SuspendLayout();
         // 
         // gbSkillsActions
         // 
-        gbSkillsActions.Controls.Add(tlp);
+        gbSkillsActions.Controls.Add(tlpRoot);
         gbSkillsActions.Dock = DockStyle.Fill;
         gbSkillsActions.Location = new Point(0, 0);
         gbSkillsActions.Name = "gbSkillsActions";
-        gbSkillsActions.Size = new Size(430, 370);
+        gbSkillsActions.Size = new Size(430, 390);
         gbSkillsActions.TabIndex = 0;
         gbSkillsActions.TabStop = false;
         gbSkillsActions.Text = "Skills";
         // 
-        // tlp
+        // tlpRoot
         // 
-        tlp.ColumnCount = 2;
-        tlp.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-        tlp.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-        tlp.Controls.Add(lblSkillId, 0, 0);
-        tlp.Controls.Add(nudSkillId, 1, 0);
-        tlp.Controls.Add(lblSkillLevel, 0, 1);
-        tlp.Controls.Add(nudSkillLevel, 1, 1);
-        tlp.Controls.Add(lblCreatureSlotIndex, 0, 2);
-        tlp.Controls.Add(nudCreatureSlotIndex, 1, 2);
-        tlp.Controls.Add(btnLearnSkill, 0, 3);
-        tlp.Controls.Add(btnSetSkill, 0, 4);
-        tlp.Controls.Add(btnRemoveSkill, 0, 5);
-        tlp.Controls.Add(btnLearnAllJobSkills, 0, 6);
-        tlp.Controls.Add(btnLearnCreatureSkill, 0, 7);
-        tlp.Controls.Add(btnLearnCreatureAllSkill, 0, 8);
-        tlp.Dock = DockStyle.Fill;
-        tlp.Location = new Point(3, 23);
-        tlp.Name = "tlp";
-        tlp.RowCount = 10;
-        tlp.RowStyles.Add(new RowStyle());
-        tlp.RowStyles.Add(new RowStyle());
-        tlp.RowStyles.Add(new RowStyle());
-        tlp.RowStyles.Add(new RowStyle());
-        tlp.RowStyles.Add(new RowStyle());
-        tlp.RowStyles.Add(new RowStyle());
-        tlp.RowStyles.Add(new RowStyle());
-        tlp.RowStyles.Add(new RowStyle());
-        tlp.RowStyles.Add(new RowStyle());
-        tlp.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-        tlp.Size = new Size(424, 344);
-        tlp.TabIndex = 0;
+        tlpRoot.ColumnCount = 1;
+        tlpRoot.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+        tlpRoot.Controls.Add(gbSelected, 0, 0);
+        tlpRoot.Controls.Add(gbPlayerSkills, 0, 1);
+        tlpRoot.Controls.Add(gbCreatureSkills, 0, 2);
+        tlpRoot.Dock = DockStyle.Fill;
+        tlpRoot.Location = new Point(3, 23);
+        tlpRoot.Name = "tlpRoot";
+        tlpRoot.RowCount = 4;
+        tlpRoot.RowStyles.Add(new RowStyle());
+        tlpRoot.RowStyles.Add(new RowStyle());
+        tlpRoot.RowStyles.Add(new RowStyle());
+        tlpRoot.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+        tlpRoot.Size = new Size(424, 364);
+        tlpRoot.TabIndex = 0;
+        // 
+        // gbSelected
+        // 
+        gbSelected.Controls.Add(tlpSelected);
+        gbSelected.Dock = DockStyle.Top;
+        gbSelected.Location = new Point(3, 3);
+        gbSelected.Name = "gbSelected";
+        gbSelected.Size = new Size(418, 83);
+        gbSelected.TabIndex = 0;
+        gbSelected.TabStop = false;
+        gbSelected.Text = "Selected";
+        // 
+        // tlpSelected
+        // 
+        tlpSelected.ColumnCount = 4;
+        tlpSelected.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        tlpSelected.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+        tlpSelected.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        tlpSelected.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+        tlpSelected.Controls.Add(lblSkillId, 0, 0);
+        tlpSelected.Controls.Add(nudSkillId, 1, 0);
+        tlpSelected.Controls.Add(lblSkillLevel, 2, 0);
+        tlpSelected.Controls.Add(nudSkillLevel, 3, 0);
+        tlpSelected.Dock = DockStyle.Fill;
+        tlpSelected.Location = new Point(3, 23);
+        tlpSelected.Name = "tlpSelected";
+        tlpSelected.RowCount = 1;
+        tlpSelected.RowStyles.Add(new RowStyle());
+        tlpSelected.Size = new Size(412, 57);
+        tlpSelected.TabIndex = 0;
         // 
         // lblSkillId
         // 
@@ -113,7 +145,7 @@ partial class SkillsActionsControl
         nudSkillId.Maximum = new decimal(new int[] { 1000000000, 0, 0, 0 });
         nudSkillId.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
         nudSkillId.Name = "nudSkillId";
-        nudSkillId.Size = new Size(386, 27);
+        nudSkillId.Size = new Size(136, 27);
         nudSkillId.TabIndex = 1;
         nudSkillId.Value = new decimal(new int[] { 1, 0, 0, 0 });
         // 
@@ -121,7 +153,7 @@ partial class SkillsActionsControl
         // 
         lblSkillLevel.Anchor = AnchorStyles.Left;
         lblSkillLevel.AutoSize = true;
-        lblSkillLevel.Location = new Point(3, 42);
+        lblSkillLevel.Location = new Point(177, 8);
         lblSkillLevel.Name = "lblSkillLevel";
         lblSkillLevel.Size = new Size(48, 20);
         lblSkillLevel.TabIndex = 2;
@@ -130,101 +162,146 @@ partial class SkillsActionsControl
         // nudSkillLevel
         // 
         nudSkillLevel.Dock = DockStyle.Fill;
-        nudSkillLevel.Location = new Point(35, 37);
+        nudSkillLevel.Location = new Point(231, 3);
         nudSkillLevel.Maximum = new decimal(new int[] { 999, 0, 0, 0 });
         nudSkillLevel.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
         nudSkillLevel.Name = "nudSkillLevel";
-        nudSkillLevel.Size = new Size(386, 27);
+        nudSkillLevel.Size = new Size(178, 27);
         nudSkillLevel.TabIndex = 3;
         nudSkillLevel.Value = new decimal(new int[] { 1, 0, 0, 0 });
         // 
-        // lblCreatureSlotIndex
+        // gbPlayerSkills
         // 
-        lblCreatureSlotIndex.Anchor = AnchorStyles.Left;
-        lblCreatureSlotIndex.AutoSize = true;
-        lblCreatureSlotIndex.Location = new Point(3, 76);
-        lblCreatureSlotIndex.Name = "lblCreatureSlotIndex";
-        lblCreatureSlotIndex.Size = new Size(113, 20);
-        lblCreatureSlotIndex.TabIndex = 4;
-        lblCreatureSlotIndex.Text = "Creature slot (0=all):";
+        gbPlayerSkills.Controls.Add(flpPlayerSkills);
+        gbPlayerSkills.Dock = DockStyle.Top;
+        gbPlayerSkills.Location = new Point(3, 92);
+        gbPlayerSkills.Name = "gbPlayerSkills";
+        gbPlayerSkills.Size = new Size(418, 135);
+        gbPlayerSkills.TabIndex = 1;
+        gbPlayerSkills.TabStop = false;
+        gbPlayerSkills.Text = "Player Skills";
         // 
-        // nudCreatureSlotIndex
+        // flpPlayerSkills
         // 
-        nudCreatureSlotIndex.Dock = DockStyle.Fill;
-        nudCreatureSlotIndex.Location = new Point(122, 71);
-        nudCreatureSlotIndex.Maximum = new decimal(new int[] { 10, 0, 0, 0 });
-        nudCreatureSlotIndex.Name = "nudCreatureSlotIndex";
-        nudCreatureSlotIndex.Size = new Size(299, 27);
-        nudCreatureSlotIndex.TabIndex = 5;
+        flpPlayerSkills.Controls.Add(btnLearnSkill);
+        flpPlayerSkills.Controls.Add(btnSetSkill);
+        flpPlayerSkills.Controls.Add(btnRemoveSkill);
+        flpPlayerSkills.Controls.Add(btnLearnAllJobSkills);
+        flpPlayerSkills.Dock = DockStyle.Fill;
+        flpPlayerSkills.Location = new Point(3, 23);
+        flpPlayerSkills.Name = "flpPlayerSkills";
+        flpPlayerSkills.Size = new Size(412, 109);
+        flpPlayerSkills.TabIndex = 0;
         // 
         // btnLearnSkill
         // 
-        tlp.SetColumnSpan(btnLearnSkill, 2);
-        btnLearnSkill.Dock = DockStyle.Fill;
-        btnLearnSkill.Location = new Point(3, 105);
+        btnLearnSkill.Location = new Point(3, 3);
         btnLearnSkill.Name = "btnLearnSkill";
-        btnLearnSkill.Size = new Size(418, 34);
-        btnLearnSkill.TabIndex = 6;
+        btnLearnSkill.Size = new Size(196, 34);
+        btnLearnSkill.TabIndex = 0;
         btnLearnSkill.Text = "Learn skill";
         btnLearnSkill.UseVisualStyleBackColor = true;
         btnLearnSkill.Click += btnLearnSkill_Click;
         // 
         // btnSetSkill
         // 
-        tlp.SetColumnSpan(btnSetSkill, 2);
-        btnSetSkill.Dock = DockStyle.Fill;
-        btnSetSkill.Location = new Point(3, 145);
+        btnSetSkill.Location = new Point(205, 3);
         btnSetSkill.Name = "btnSetSkill";
-        btnSetSkill.Size = new Size(418, 34);
-        btnSetSkill.TabIndex = 7;
+        btnSetSkill.Size = new Size(196, 34);
+        btnSetSkill.TabIndex = 1;
         btnSetSkill.Text = "Set skill level";
         btnSetSkill.UseVisualStyleBackColor = true;
         btnSetSkill.Click += btnSetSkill_Click;
         // 
         // btnRemoveSkill
         // 
-        tlp.SetColumnSpan(btnRemoveSkill, 2);
-        btnRemoveSkill.Dock = DockStyle.Fill;
-        btnRemoveSkill.Location = new Point(3, 185);
+        btnRemoveSkill.Location = new Point(3, 43);
         btnRemoveSkill.Name = "btnRemoveSkill";
-        btnRemoveSkill.Size = new Size(418, 34);
-        btnRemoveSkill.TabIndex = 8;
+        btnRemoveSkill.Size = new Size(196, 34);
+        btnRemoveSkill.TabIndex = 2;
         btnRemoveSkill.Text = "Remove skill";
         btnRemoveSkill.UseVisualStyleBackColor = true;
         btnRemoveSkill.Click += btnRemoveSkill_Click;
         // 
         // btnLearnAllJobSkills
         // 
-        tlp.SetColumnSpan(btnLearnAllJobSkills, 2);
-        btnLearnAllJobSkills.Dock = DockStyle.Fill;
-        btnLearnAllJobSkills.Location = new Point(3, 225);
+        btnLearnAllJobSkills.Location = new Point(205, 43);
         btnLearnAllJobSkills.Name = "btnLearnAllJobSkills";
-        btnLearnAllJobSkills.Size = new Size(418, 34);
-        btnLearnAllJobSkills.TabIndex = 9;
+        btnLearnAllJobSkills.Size = new Size(196, 34);
+        btnLearnAllJobSkills.TabIndex = 3;
         btnLearnAllJobSkills.Text = "Learn all skill";
         btnLearnAllJobSkills.UseVisualStyleBackColor = true;
         btnLearnAllJobSkills.Click += btnLearnAllJobSkills_Click;
         // 
+        // gbCreatureSkills
+        // 
+        gbCreatureSkills.Controls.Add(tlpCreature);
+        gbCreatureSkills.Dock = DockStyle.Top;
+        gbCreatureSkills.Location = new Point(3, 233);
+        gbCreatureSkills.Name = "gbCreatureSkills";
+        gbCreatureSkills.Size = new Size(418, 109);
+        gbCreatureSkills.TabIndex = 2;
+        gbCreatureSkills.TabStop = false;
+        gbCreatureSkills.Text = "Creature Skills";
+        // 
+        // tlpCreature
+        // 
+        tlpCreature.ColumnCount = 2;
+        tlpCreature.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        tlpCreature.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+        tlpCreature.Controls.Add(lblCreatureSlotIndex, 0, 0);
+        tlpCreature.Controls.Add(nudCreatureSlotIndex, 1, 0);
+        tlpCreature.Controls.Add(btnLearnCreatureSkill, 0, 1);
+        tlpCreature.Controls.Add(btnLearnCreatureAllSkill, 0, 2);
+        tlpCreature.Dock = DockStyle.Fill;
+        tlpCreature.Location = new Point(3, 23);
+        tlpCreature.Name = "tlpCreature";
+        tlpCreature.RowCount = 3;
+        tlpCreature.RowStyles.Add(new RowStyle());
+        tlpCreature.RowStyles.Add(new RowStyle());
+        tlpCreature.RowStyles.Add(new RowStyle());
+        tlpCreature.Size = new Size(412, 83);
+        tlpCreature.TabIndex = 0;
+        // 
+        // lblCreatureSlotIndex
+        // 
+        lblCreatureSlotIndex.Anchor = AnchorStyles.Left;
+        lblCreatureSlotIndex.AutoSize = true;
+        lblCreatureSlotIndex.Location = new Point(3, 8);
+        lblCreatureSlotIndex.Name = "lblCreatureSlotIndex";
+        lblCreatureSlotIndex.Size = new Size(113, 20);
+        lblCreatureSlotIndex.TabIndex = 0;
+        lblCreatureSlotIndex.Text = "Creature slot (0=all):";
+        // 
+        // nudCreatureSlotIndex
+        // 
+        nudCreatureSlotIndex.Dock = DockStyle.Fill;
+        nudCreatureSlotIndex.Location = new Point(122, 3);
+        nudCreatureSlotIndex.Maximum = new decimal(new int[] { 10, 0, 0, 0 });
+        nudCreatureSlotIndex.Name = "nudCreatureSlotIndex";
+        nudCreatureSlotIndex.Size = new Size(287, 27);
+        nudCreatureSlotIndex.TabIndex = 1;
+        // 
         // btnLearnCreatureSkill
         // 
-        tlp.SetColumnSpan(btnLearnCreatureSkill, 2);
+        tlpCreature.SetColumnSpan(btnLearnCreatureSkill, 2);
         btnLearnCreatureSkill.Dock = DockStyle.Fill;
-        btnLearnCreatureSkill.Location = new Point(3, 265);
+        btnLearnCreatureSkill.Location = new Point(3, 36);
         btnLearnCreatureSkill.Name = "btnLearnCreatureSkill";
-        btnLearnCreatureSkill.Size = new Size(418, 34);
-        btnLearnCreatureSkill.TabIndex = 10;
+        btnLearnCreatureSkill.Size = new Size(406, 34);
+        btnLearnCreatureSkill.TabIndex = 2;
         btnLearnCreatureSkill.Text = "Learn creature skill";
         btnLearnCreatureSkill.UseVisualStyleBackColor = true;
         btnLearnCreatureSkill.Click += btnLearnCreatureSkill_Click;
         // 
         // btnLearnCreatureAllSkill
         // 
-        tlp.SetColumnSpan(btnLearnCreatureAllSkill, 2);
+        tlpCreature.SetColumnSpan(btnLearnCreatureAllSkill, 2);
         btnLearnCreatureAllSkill.Dock = DockStyle.Fill;
-        btnLearnCreatureAllSkill.Location = new Point(3, 305);
+        btnLearnCreatureAllSkill.Location = new Point(3, 76);
         btnLearnCreatureAllSkill.Name = "btnLearnCreatureAllSkill";
-        btnLearnCreatureAllSkill.Size = new Size(418, 34);
-        btnLearnCreatureAllSkill.TabIndex = 11;
+        btnLearnCreatureAllSkill.Size = new Size(406, 34);
+        btnLearnCreatureAllSkill.TabIndex = 3;
         btnLearnCreatureAllSkill.Text = "Learn creature all skill";
         btnLearnCreatureAllSkill.UseVisualStyleBackColor = true;
         btnLearnCreatureAllSkill.Click += btnLearnCreatureAllSkill_Click;
@@ -235,12 +312,19 @@ partial class SkillsActionsControl
         AutoScaleMode = AutoScaleMode.Font;
         Controls.Add(gbSkillsActions);
         Name = "SkillsActionsControl";
-        Size = new Size(430, 370);
+        Size = new Size(430, 390);
         gbSkillsActions.ResumeLayout(false);
-        tlp.ResumeLayout(false);
-        tlp.PerformLayout();
+        tlpRoot.ResumeLayout(false);
+        gbSelected.ResumeLayout(false);
+        tlpSelected.ResumeLayout(false);
+        tlpSelected.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)nudSkillId).EndInit();
         ((System.ComponentModel.ISupportInitialize)nudSkillLevel).EndInit();
+        gbPlayerSkills.ResumeLayout(false);
+        flpPlayerSkills.ResumeLayout(false);
+        gbCreatureSkills.ResumeLayout(false);
+        tlpCreature.ResumeLayout(false);
+        tlpCreature.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)nudCreatureSlotIndex).EndInit();
         ResumeLayout(false);
     }

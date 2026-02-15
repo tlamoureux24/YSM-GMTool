@@ -7,6 +7,7 @@ using App.WinForms.Forms;
 using App.WinForms.Models;
 using App.WinForms.Presenters;
 using Serilog;
+using System.Drawing;
 
 namespace App.WinForms;
 
@@ -64,7 +65,8 @@ public partial class MainForm : Form
         _nameNormalizer = nameNormalizer;
 
         InitializeComponent();
-        picAvatar.Image = SystemIcons.Shield.ToBitmap();
+        ApplyReadabilityPalette();
+        ApplyBrandingIcon();
 
         AttachActionControls();
         ConfigureBrowserColumns();
@@ -72,6 +74,73 @@ public partial class MainForm : Form
         WireActionEvents();
 
         _commandHistoryService.CommandsChanged += CommandHistoryService_CommandsChanged;
+    }
+
+    private void ApplyBrandingIcon()
+    {
+        try
+        {
+            using var exeIcon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+            if (exeIcon is not null)
+            {
+                Icon = (Icon)exeIcon.Clone();
+            }
+        }
+        catch
+        {
+            // Fallbacks handled below.
+        }
+
+        try
+        {
+            using var stream = typeof(MainForm).Assembly.GetManifestResourceStream("App.WinForms.Assets.Heaven_logo1.png");
+            if (stream is not null)
+            {
+                using var resourceImage = Image.FromStream(stream);
+                picAvatar.Image = new Bitmap(resourceImage);
+                return;
+            }
+        }
+        catch
+        {
+            // Fallback to icon/avatar below.
+        }
+
+        if (Icon is not null)
+        {
+            using var avatarIcon = new Icon(Icon, new Size(128, 128));
+            picAvatar.Image = avatarIcon.ToBitmap();
+            return;
+        }
+
+        picAvatar.Image = SystemIcons.Application.ToBitmap();
+    }
+
+    private void ApplyReadabilityPalette()
+    {
+        var page = Color.FromArgb(24, 27, 33);
+        var side = Color.FromArgb(30, 34, 42);
+        var panelAlt = Color.FromArgb(36, 41, 50);
+        var text = Color.FromArgb(235, 238, 245);
+        var muted = Color.FromArgb(188, 196, 208);
+
+        BackColor = page;
+        tlpRoot.BackColor = page;
+        tabMain.BackColor = page;
+
+        tlpSidebar.BackColor = side;
+        lblProviderCaption.ForeColor = muted;
+        lblProviderValue.ForeColor = text;
+        lblPlayer.ForeColor = muted;
+        lblNewPlayer.ForeColor = muted;
+        chkAppendCommands.ForeColor = text;
+
+        lstCommands.BackColor = panelAlt;
+        lstCommands.ForeColor = text;
+        txtNewPlayer.BackColor = panelAlt;
+        txtNewPlayer.ForeColor = text;
+        cmbPlayers.BackColor = panelAlt;
+        cmbPlayers.ForeColor = text;
     }
 
     private void AttachActionControls()
@@ -96,51 +165,51 @@ public partial class MainForm : Form
         browserPlayerchecker.ConfigureColumns(
         [
             new BrowserColumnDefinition("playerId", "ID", 80),
-            new BrowserColumnDefinition("playerName", "Name", 220, true),
+            new BrowserColumnDefinition("playerName", "Name", 320, true),
             new BrowserColumnDefinition("level", "Level", 90),
-            new BrowserColumnDefinition("job", "Job", 180)
+            new BrowserColumnDefinition("job", "Job", 200)
         ]);
 
         browserMonster.ConfigureColumns(
         [
             new BrowserColumnDefinition("id", "ID", 80),
-            new BrowserColumnDefinition("name", "Name", 230),
+            new BrowserColumnDefinition("name", "Name", 340, true),
             new BrowserColumnDefinition("level", "Level", 90),
-            new BrowserColumnDefinition("location", "Location", 260, true)
+            new BrowserColumnDefinition("location", "Location", 300, true)
         ]);
 
         browserItems.ConfigureColumns(
         [
             new BrowserColumnDefinition("itemId", "ID", 80),
-            new BrowserColumnDefinition("name", "Name", 320, true)
+            new BrowserColumnDefinition("name", "Name", 460, true)
         ]);
 
         browserSkills.ConfigureColumns(
         [
             new BrowserColumnDefinition("skillId", "ID", 80),
-            new BrowserColumnDefinition("skillName", "Name", 320, true)
+            new BrowserColumnDefinition("skillName", "Name", 460, true)
         ]);
 
         browserBuffs.ConfigureColumns(
         [
             new BrowserColumnDefinition("stateId", "State ID", 100),
-            new BrowserColumnDefinition("buffName", "Buff name", 320, true)
+            new BrowserColumnDefinition("buffName", "Buff name", 460, true)
         ]);
 
         browserNpcs.ConfigureColumns(
         [
             new BrowserColumnDefinition("npcId", "NPC ID", 90),
-            new BrowserColumnDefinition("npcTitle", "Title", 220, true),
+            new BrowserColumnDefinition("npcTitle", "Name", 420, true),
             new BrowserColumnDefinition("x", "X", 90),
             new BrowserColumnDefinition("y", "Y", 90),
-            new BrowserColumnDefinition("localFlag", "Flag", 90)
+            new BrowserColumnDefinition("localFlag", "Flag", 95)
         ]);
 
         browserSummons.ConfigureColumns(
         [
             new BrowserColumnDefinition("summonId", "Summon ID", 100),
-            new BrowserColumnDefinition("summonName", "Summon Name", 240, true),
-            new BrowserColumnDefinition("cardName", "Card Name", 220, true)
+            new BrowserColumnDefinition("summonName", "Summon Name", 320, true),
+            new BrowserColumnDefinition("cardName", "Card Name", 320, true)
         ]);
     }
 

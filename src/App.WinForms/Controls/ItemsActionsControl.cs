@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Drawing;
 
 namespace App.WinForms.Controls;
 
@@ -51,6 +52,7 @@ public partial class ItemsActionsControl : UserControl
     public ItemsActionsControl()
     {
         InitializeComponent();
+        ApplyReadabilityPalette();
         cmbWearSlot.Items.Clear();
         cmbWearSlot.Items.AddRange(WearSlotItems);
         cmbWearSlot.SelectedIndex = Array.FindIndex(WearSlotItems, x => x.StartsWith("0 ", StringComparison.Ordinal));
@@ -60,6 +62,29 @@ public partial class ItemsActionsControl : UserControl
         }
         rbTargetOwn.Checked = true;
         ToggleStatusFlag();
+    }
+
+    private void ApplyReadabilityPalette()
+    {
+        var page = Color.FromArgb(25, 28, 34);
+        var panel = Color.FromArgb(34, 39, 48);
+        var panelAlt = Color.FromArgb(39, 45, 56);
+        var text = Color.FromArgb(235, 238, 245);
+        var muted = Color.FromArgb(186, 194, 208);
+
+        BackColor = page;
+        gbItemActions.BackColor = panel;
+        gbItemActions.ForeColor = text;
+        tabItemsActions.BackColor = page;
+        tabItem.BackColor = page;
+        tabRandomOption.BackColor = page;
+        tabItemUseFlag.BackColor = page;
+        gbInsertItem.BackColor = panelAlt;
+        gbModifyItem.BackColor = panelAlt;
+        gbInsertItem.ForeColor = text;
+        gbModifyItem.ForeColor = text;
+        lblRandomOptionPlaceholder.ForeColor = muted;
+        lblItemUseFlagPlaceholder.ForeColor = muted;
     }
 
     public event EventHandler? AddYourselfRequested;

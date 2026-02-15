@@ -1,5 +1,6 @@
 using App.WinForms.Models;
 using System.Reflection;
+using System.Drawing;
 
 namespace App.WinForms.Controls;
 
@@ -7,11 +8,15 @@ public partial class EntityBrowserControl : UserControl
 {
     private IReadOnlyList<BrowserRow> _rows = [];
     private CancellationTokenSource? _debounceCts;
+    private bool _splitterInitialized;
+    private bool _splitterUserAdjusted;
 
     public EntityBrowserControl()
     {
         InitializeComponent();
         ConfigureGridDefaults();
+        ApplyReadabilityPalette();
+        InitializeLayoutDefaults();
     }
 
     public event EventHandler? LoadAllRequested;
@@ -28,26 +33,35 @@ public partial class EntityBrowserControl : UserControl
 
     public void ConfigureColumns(IReadOnlyList<BrowserColumnDefinition> columns)
     {
+        gridRecords.SuspendLayout();
         gridRecords.Columns.Clear();
+        gridRecords.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
         foreach (var column in columns)
         {
+            var fillWeight = column.Fill
+                ? Math.Max(140f, column.Width)
+                : Math.Max(55f, column.Width * 0.75f);
+            var minimumWidth = column.Fill
+                ? Math.Max(170, column.Width / 2)
+                : Math.Max(60, Math.Min(column.Width, 150));
+
             var dataGridColumn = new DataGridViewTextBoxColumn
             {
                 Name = column.Name,
                 HeaderText = column.HeaderText,
                 Width = column.Width,
                 ReadOnly = true,
-                SortMode = DataGridViewColumnSortMode.NotSortable
+                SortMode = DataGridViewColumnSortMode.NotSortable,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = fillWeight,
+                MinimumWidth = minimumWidth
             };
-
-            if (column.Fill)
-            {
-                dataGridColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            }
 
             gridRecords.Columns.Add(dataGridColumn);
         }
+
+        gridRecords.ResumeLayout();
     }
 
     public void SetRows(IReadOnlyList<BrowserRow> rows)
@@ -88,7 +102,84 @@ public partial class EntityBrowserControl : UserControl
         gridRecords.ColumnHeadersDefaultCellStyle.SelectionForeColor = gridRecords.ColumnHeadersDefaultCellStyle.ForeColor;
         gridRecords.AllowUserToOrderColumns = false;
         gridRecords.AllowUserToResizeColumns = false;
+        gridRecords.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
         TryEnableDoubleBuffering(gridRecords);
+    }
+
+    private void InitializeLayoutDefaults()
+    {
+        splitMain.SplitterMoved += splitMain_SplitterMoved;
+        splitMain.SizeChanged += splitMain_SizeChanged;
+        ApplyTableFocusedSplitRatio();
+    }
+
+    private void ApplyReadabilityPalette()
+    {
+        var page = Color.FromArgb(23, 25, 30);
+        var panel = Color.FromArgb(30, 34, 41);
+        var panelAlt = Color.FromArgb(35, 40, 49);
+        var header = Color.FromArgb(48, 55, 67);
+        var border = Color.FromArgb(68, 78, 95);
+        var accent = Color.FromArgb(72, 118, 196);
+        var text = Color.FromArgb(235, 238, 245);
+        var muted = Color.FromArgb(187, 194, 206);
+
+        BackColor = page;
+        splitMain.BackColor = page;
+        tlpCenter.BackColor = page;
+        pnlActionsHost.BackColor = panel;
+        gbSearch.BackColor = panel;
+        gbSearch.ForeColor = text;
+        lblStatus.ForeColor = muted;
+
+        gridRecords.BackgroundColor = panel;
+        gridRecords.GridColor = border;
+        gridRecords.BorderStyle = BorderStyle.FixedSingle;
+        gridRecords.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+        gridRecords.DefaultCellStyle.BackColor = panel;
+        gridRecords.DefaultCellStyle.ForeColor = text;
+        gridRecords.DefaultCellStyle.SelectionBackColor = accent;
+        gridRecords.DefaultCellStyle.SelectionForeColor = Color.White;
+        gridRecords.AlternatingRowsDefaultCellStyle.BackColor = panelAlt;
+        gridRecords.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+        gridRecords.ColumnHeadersDefaultCellStyle.BackColor = header;
+        gridRecords.ColumnHeadersDefaultCellStyle.ForeColor = text;
+        gridRecords.ColumnHeadersDefaultCellStyle.SelectionBackColor = header;
+        gridRecords.ColumnHeadersDefaultCellStyle.SelectionForeColor = text;
+    }
+
+    private void splitMain_SplitterMoved(object? sender, SplitterEventArgs e)
+    {
+        if (!_splitterInitialized)
+        {
+            return;
+        }
+
+        _splitterUserAdjusted = true;
+    }
+
+    private void splitMain_SizeChanged(object? sender, EventArgs e)
+    {
+        if (_splitterUserAdjusted)
+        {
+            return;
+        }
+
+        ApplyTableFocusedSplitRatio();
+    }
+
+    private void ApplyTableFocusedSplitRatio()
+    {
+        if (splitMain.Width <= splitMain.Panel1MinSize + splitMain.Panel2MinSize)
+        {
+            return;
+        }
+
+        var target = (int)(splitMain.Width * 0.72);
+        var min = splitMain.Panel1MinSize;
+        var max = splitMain.Width - splitMain.Panel2MinSize;
+        splitMain.SplitterDistance = Math.Clamp(target, min, max);
+        _splitterInitialized = true;
     }
 
     private static void TryEnableDoubleBuffering(DataGridView grid)

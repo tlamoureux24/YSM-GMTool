@@ -63,7 +63,7 @@ partial class EntityBrowserControl
         // 
         splitMain.Panel2.Controls.Add(tlpCenter);
         splitMain.Size = new Size(1040, 640);
-        splitMain.SplitterDistance = 460;
+        splitMain.SplitterDistance = 610;
         splitMain.TabIndex = 0;
         // 
         // gridRecords

@@ -11,6 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Heaven_logo1.png">
+      <LogicalName>App.WinForms.Assets.Heaven_logo1.png</LogicalName>
+    </EmbeddedResource>
     <None Update="Config\queries.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -25,6 +28,7 @@
     <AssemblyName>GM Tool</AssemblyName>
     <Product>GM Tool</Product>
     <Title>GM Tool</Title>
+    <ApplicationIcon>Logo.ico</ApplicationIcon>
     <RootNamespace>App.WinForms</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>

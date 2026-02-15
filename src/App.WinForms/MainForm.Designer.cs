@@ -119,7 +119,7 @@ partial class MainForm
         tlpRoot.Name = "tlpRoot";
         tlpRoot.RowCount = 1;
         tlpRoot.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-        tlpRoot.Size = new Size(1380, 860);
+        tlpRoot.Size = new Size(1725, 860);
         tlpRoot.TabIndex = 0;
         // 
         // tabMain
@@ -527,9 +527,9 @@ partial class MainForm
         // 
         AutoScaleDimensions = new SizeF(8F, 20F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(1380, 860);
+        ClientSize = new Size(1725, 860);
         Controls.Add(tlpRoot);
-        MinimumSize = new Size(1200, 700);
+        MinimumSize = new Size(1500, 700);
         Name = "MainForm";
         StartPosition = FormStartPosition.CenterScreen;
         Text = "GM Tool";

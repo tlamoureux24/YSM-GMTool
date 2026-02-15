@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Drawing;
 
 namespace App.WinForms.Controls;
 
@@ -7,6 +8,7 @@ public partial class BuffsActionsControl : UserControl
     public BuffsActionsControl()
     {
         InitializeComponent();
+        ApplyReadabilityPalette();
         rbPlayer.Checked = true;
     }
 
@@ -50,6 +52,24 @@ public partial class BuffsActionsControl : UserControl
     public int DurationMinutes => (int)nudDurationMinutes.Value;
 
     public bool IsSummonTarget => rbSummon.Checked;
+
+    private void ApplyReadabilityPalette()
+    {
+        var page = Color.FromArgb(25, 28, 34);
+        var panel = Color.FromArgb(34, 39, 48);
+        var panelAlt = Color.FromArgb(39, 45, 56);
+        var text = Color.FromArgb(235, 238, 245);
+
+        BackColor = page;
+        gbBuffActions.BackColor = panel;
+        gbBuffActions.ForeColor = text;
+        gbSelected.BackColor = panelAlt;
+        gbGlobalBuffs.BackColor = panelAlt;
+        gbPlayerCreature.BackColor = panelAlt;
+        gbSelected.ForeColor = text;
+        gbGlobalBuffs.ForeColor = text;
+        gbPlayerCreature.ForeColor = text;
+    }
 
     private void btnAddTimedWorldState_Click(object sender, EventArgs e)
     {

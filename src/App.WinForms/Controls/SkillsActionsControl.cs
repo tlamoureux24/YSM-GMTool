@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Drawing;
 
 namespace App.WinForms.Controls;
 
@@ -7,6 +8,7 @@ public partial class SkillsActionsControl : UserControl
     public SkillsActionsControl()
     {
         InitializeComponent();
+        ApplyReadabilityPalette();
     }
 
     public event EventHandler? LearnSkillRequested;
@@ -41,6 +43,24 @@ public partial class SkillsActionsControl : UserControl
     public int SkillLevel => (int)nudSkillLevel.Value;
 
     public int CreatureSlotIndex => (int)nudCreatureSlotIndex.Value;
+
+    private void ApplyReadabilityPalette()
+    {
+        var page = Color.FromArgb(25, 28, 34);
+        var panel = Color.FromArgb(34, 39, 48);
+        var panelAlt = Color.FromArgb(39, 45, 56);
+        var text = Color.FromArgb(235, 238, 245);
+
+        BackColor = page;
+        gbSkillsActions.BackColor = panel;
+        gbSkillsActions.ForeColor = text;
+        gbSelected.BackColor = panelAlt;
+        gbPlayerSkills.BackColor = panelAlt;
+        gbCreatureSkills.BackColor = panelAlt;
+        gbSelected.ForeColor = text;
+        gbPlayerSkills.ForeColor = text;
+        gbCreatureSkills.ForeColor = text;
+    }
 
     private void btnLearnSkill_Click(object sender, EventArgs e)
     {
