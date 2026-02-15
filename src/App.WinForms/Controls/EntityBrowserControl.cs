@@ -1,10 +1,11 @@
 using App.WinForms.Models;
+using System.Reflection;
 
 namespace App.WinForms.Controls;
 
 public partial class EntityBrowserControl : UserControl
 {
-    private readonly List<BrowserRow> _rows = [];
+    private IReadOnlyList<BrowserRow> _rows = [];
     private CancellationTokenSource? _debounceCts;
 
     public EntityBrowserControl()
@@ -51,11 +52,17 @@ public partial class EntityBrowserControl : UserControl
 
     public void SetRows(IReadOnlyList<BrowserRow> rows)
     {
-        _rows.Clear();
-        _rows.AddRange(rows);
+        _rows = rows;
 
         gridRecords.RowCount = _rows.Count;
+        gridRecords.CurrentCell = null;
         gridRecords.ClearSelection();
+
+        // In VirtualMode visible cells can keep stale values when row count stays unchanged.
+        // Force immediate repaint so filtering is reflected while typing.
+        gridRecords.Invalidate();
+        gridRecords.Refresh();
+
         SelectedRowChanged?.Invoke(this, null);
     }
 
@@ -74,6 +81,22 @@ public partial class EntityBrowserControl : UserControl
         gridRecords.ReadOnly = true;
         gridRecords.RowHeadersVisible = false;
         gridRecords.AutoGenerateColumns = false;
+        gridRecords.EnableHeadersVisualStyles = false;
+        gridRecords.ColumnHeadersDefaultCellStyle.SelectionBackColor = gridRecords.ColumnHeadersDefaultCellStyle.BackColor;
+        gridRecords.ColumnHeadersDefaultCellStyle.SelectionForeColor = gridRecords.ColumnHeadersDefaultCellStyle.ForeColor;
+        gridRecords.AllowUserToOrderColumns = false;
+        gridRecords.AllowUserToResizeColumns = false;
+        TryEnableDoubleBuffering(gridRecords);
+    }
+
+    private static void TryEnableDoubleBuffering(DataGridView grid)
+    {
+        // DataGridView.DoubleBuffered is protected - enable via reflection for smoother scrolling/repaint.
+        var property = typeof(DataGridView).GetProperty(
+            "DoubleBuffered",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+
+        property?.SetValue(grid, true);
     }
 
     private BrowserRow? GetSelectedRow()
@@ -100,7 +123,7 @@ public partial class EntityBrowserControl : UserControl
 
         try
         {
-            await Task.Delay(150, _debounceCts.Token);
+            await Task.Delay(120, _debounceCts.Token);
             FilterRequested?.Invoke(this, EventArgs.Empty);
         }
         catch (OperationCanceledException)

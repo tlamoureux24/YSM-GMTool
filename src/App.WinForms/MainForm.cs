@@ -1,3 +1,4 @@
+using App.Core.Enums;
 using App.Core.Interfaces;
 using App.Core.Models;
 using App.Core.Models.Entities;
@@ -11,8 +12,12 @@ namespace App.WinForms;
 
 public partial class MainForm : Form
 {
+    private const string DbProviderEnvKey = "YSM_DB_PROVIDER";
+    private const string DbConnectionStringEnvKey = "YSM_DB_CONNECTION_STRING";
+
     private readonly IGameDataRepository _repository;
     private readonly IAppSettingsService _settingsService;
+    private readonly IConnectionStringBuilderService _connectionStringBuilder;
     private readonly ILuaCommandBuilder _luaCommandBuilder;
     private readonly ICommandHistoryService _commandHistoryService;
     private readonly INameNormalizer _nameNormalizer;
@@ -46,12 +51,14 @@ public partial class MainForm : Form
     public MainForm(
         IGameDataRepository repository,
         IAppSettingsService settingsService,
+        IConnectionStringBuilderService connectionStringBuilder,
         ILuaCommandBuilder luaCommandBuilder,
         ICommandHistoryService commandHistoryService,
         INameNormalizer nameNormalizer)
     {
         _repository = repository;
         _settingsService = settingsService;
+        _connectionStringBuilder = connectionStringBuilder;
         _luaCommandBuilder = luaCommandBuilder;
         _commandHistoryService = commandHistoryService;
         _nameNormalizer = nameNormalizer;
@@ -97,8 +104,9 @@ public partial class MainForm : Form
         browserMonster.ConfigureColumns(
         [
             new BrowserColumnDefinition("id", "ID", 80),
-            new BrowserColumnDefinition("name", "Name", 260, true),
-            new BrowserColumnDefinition("level", "Level", 90)
+            new BrowserColumnDefinition("name", "Name", 230),
+            new BrowserColumnDefinition("level", "Level", 90),
+            new BrowserColumnDefinition("location", "Location", 260, true)
         ]);
 
         browserItems.ConfigureColumns(
@@ -140,7 +148,7 @@ public partial class MainForm : Form
     {
         _playerPresenter = new EntityBrowserPresenter<PlayerRecord>(
             browserPlayerchecker,
-            ct => _repository.GetPlayersAsync(_settings.Provider, GetConfiguredConnectionString(), ct),
+            ct => _repository.GetPlayersAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.PlayerId,
             x => x.PlayerName,
             x =>
@@ -154,20 +162,26 @@ public partial class MainForm : Form
 
         _monsterPresenter = new EntityBrowserPresenter<MonsterRecord>(
             browserMonster,
-            ct => _repository.GetMonstersAsync(_settings.Provider, GetConfiguredConnectionString(), ct),
+            ct => _repository.GetMonstersAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.Id,
             x => x.Name,
             x =>
             [
                 x.Id,
                 x.Name,
-                x.Level ?? 0
+                x.Level ?? 0,
+                x.Location ?? string.Empty
             ],
-            _nameNormalizer);
+            _nameNormalizer,
+            x =>
+            [
+                x.Name,
+                x.Location
+            ]);
 
         _itemsPresenter = new EntityBrowserPresenter<ItemRecord>(
             browserItems,
-            ct => _repository.GetItemsAsync(_settings.Provider, GetConfiguredConnectionString(), ct),
+            ct => _repository.GetItemsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.ItemId,
             x => x.NameEn,
             x =>
@@ -179,7 +193,7 @@ public partial class MainForm : Form
 
         _skillsPresenter = new EntityBrowserPresenter<SkillRecord>(
             browserSkills,
-            ct => _repository.GetSkillsAsync(_settings.Provider, GetConfiguredConnectionString(), ct),
+            ct => _repository.GetSkillsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.SkillId,
             x => x.Skillname,
             x =>
@@ -191,7 +205,7 @@ public partial class MainForm : Form
 
         _buffsPresenter = new EntityBrowserPresenter<StateRecord>(
             browserBuffs,
-            ct => _repository.GetStatesAsync(_settings.Provider, GetConfiguredConnectionString(), ct),
+            ct => _repository.GetStatesAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.StateId,
             x => x.BuffName,
             x =>
@@ -203,7 +217,7 @@ public partial class MainForm : Form
 
         _npcsPresenter = new EntityBrowserPresenter<NpcRecord>(
             browserNpcs,
-            ct => _repository.GetNpcsAsync(_settings.Provider, GetConfiguredConnectionString(), ct),
+            ct => _repository.GetNpcsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.NpcId,
             x => x.NpcTitle,
             x =>
@@ -218,7 +232,7 @@ public partial class MainForm : Form
 
         _summonsPresenter = new EntityBrowserPresenter<SummonRecord>(
             browserSummons,
-            ct => _repository.GetSummonsAsync(_settings.Provider, GetConfiguredConnectionString(), ct),
+            ct => _repository.GetSummonsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.SummonId,
             x => x.SummonName,
             x =>
@@ -301,6 +315,8 @@ public partial class MainForm : Form
         try
         {
             _settings = await _settingsService.LoadAsync();
+            EnsureSettingsDefaults();
+            ApplyEnvironmentDefaults();
             ApplySettingsToUi();
             RefreshCommandList();
         }
@@ -308,6 +324,33 @@ public partial class MainForm : Form
         {
             ShowError("Failed to load app settings.", ex);
         }
+    }
+
+    private void ApplyEnvironmentDefaults()
+    {
+        var providerRaw = Environment.GetEnvironmentVariable(DbProviderEnvKey);
+        if (!string.IsNullOrWhiteSpace(providerRaw)
+            && Enum.TryParse<DatabaseProvider>(providerRaw, ignoreCase: true, out var provider))
+        {
+            _settings.Provider = provider;
+        }
+
+        var connectionString = Environment.GetEnvironmentVariable(DbConnectionStringEnvKey);
+        if (!string.IsNullOrWhiteSpace(connectionString))
+        {
+            _settings.ConnectionString = connectionString.Trim();
+            if (_connectionStringBuilder.TryParse(_settings.Provider, _settings.ConnectionString, out var parsed))
+            {
+                _settings.Connection = parsed;
+            }
+        }
+    }
+
+    private void EnsureSettingsDefaults()
+    {
+        _settings.Connection ??= new();
+        _settings.TableNames ??= new();
+        _settings.Players ??= [];
     }
 
     private void ApplySettingsToUi()
@@ -331,6 +374,14 @@ public partial class MainForm : Form
 
     private string GetConfiguredConnectionString()
     {
+        if (!string.IsNullOrWhiteSpace(_settings.Connection.Server)
+            && !string.IsNullOrWhiteSpace(_settings.Connection.Database))
+        {
+            var built = _connectionStringBuilder.Build(_settings.Provider, _settings.Connection);
+            _settings.ConnectionString = built;
+            return built;
+        }
+
         if (string.IsNullOrWhiteSpace(_settings.ConnectionString))
         {
             throw new InvalidOperationException("Connection string is empty. Open Settings and configure the database provider/connection.");
@@ -338,6 +389,8 @@ public partial class MainForm : Form
 
         return _settings.ConnectionString;
     }
+
+    private IReadOnlyDictionary<string, string> GetQueryTokens() => _settings.TableNames.ToTokenMap();
 
     private void OnPresenterError(object? sender, Exception ex)
     {
@@ -636,17 +689,22 @@ public partial class MainForm : Form
 
     private async void btnSettings_Click(object sender, EventArgs e)
     {
-        using var settingsForm = new SettingsForm(_repository, _settings.Provider, _settings.ConnectionString);
+        using var settingsForm = new SettingsForm(_repository, _connectionStringBuilder, _settings);
         if (settingsForm.ShowDialog(this) != DialogResult.OK)
         {
             return;
         }
 
-        _settings.Provider = settingsForm.SelectedProvider;
-        _settings.ConnectionString = settingsForm.ConnectionString;
+        _settings = settingsForm.UpdatedSettings.Clone();
         lblProviderValue.Text = _settings.Provider.ToString();
 
         await SaveSettingsSafeAsync();
+    }
+
+    private void btnAbout_Click(object sender, EventArgs e)
+    {
+        using var about = new AboutForm();
+        about.ShowDialog(this);
     }
 
     private void btnAddPlayer_Click(object sender, EventArgs e)
@@ -700,7 +758,7 @@ public partial class MainForm : Form
         {
             _settings.SelectedPlayer = cmbPlayers.SelectedItem as string;
             _settings.AppendGeneratedCommands = chkAppendCommands.Checked;
-            await _settingsService.SaveAsync(_settings);
+            await _settingsService.SaveAsync(_settings).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -714,7 +772,13 @@ public partial class MainForm : Form
         {
             _settings.SelectedPlayer = cmbPlayers.SelectedItem as string;
             _settings.AppendGeneratedCommands = chkAppendCommands.Checked;
-            _settingsService.SaveAsync(_settings).GetAwaiter().GetResult();
+
+            // Save on a worker thread with timeout to avoid UI deadlocks during close.
+            var persisted = Task.Run(() => _settingsService.SaveAsync(_settings)).Wait(TimeSpan.FromSeconds(2));
+            if (!persisted)
+            {
+                Log.Warning("Settings save timed out during shutdown.");
+            }
         }
         catch (Exception ex)
         {

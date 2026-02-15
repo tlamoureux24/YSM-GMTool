@@ -11,11 +11,16 @@ public sealed class EntityBrowserPresenter<TRecord>
     private readonly Func<CancellationToken, Task<IReadOnlyList<TRecord>>> _loadAllAsync;
     private readonly Func<TRecord, int> _idSelector;
     private readonly Func<TRecord, string?> _nameSelector;
-    private readonly Func<TRecord, object?[]> _columnsSelector;
+    private readonly Func<TRecord, IEnumerable<string?>>? _searchableTextSelector;
+    private readonly Func<TRecord, object?[]> _rowValuesSelector;
     private readonly INameNormalizer _normalizer;
 
-    private List<TRecord> _allRecords = [];
+    private List<BrowserRow> _allRows = [];
     private List<SearchIndexedRecord<TRecord>> _index = [];
+    private string? _lastFilterQuery;
+    private SearchMode _lastFilterMode = SearchMode.ByName;
+    private int _dataVersion;
+    private int _lastFilteredVersion = -1;
 
     private CancellationTokenSource? _loadCts;
     private CancellationTokenSource? _filterCts;
@@ -25,15 +30,17 @@ public sealed class EntityBrowserPresenter<TRecord>
         Func<CancellationToken, Task<IReadOnlyList<TRecord>>> loadAllAsync,
         Func<TRecord, int> idSelector,
         Func<TRecord, string?> nameSelector,
-        Func<TRecord, object?[]> columnsSelector,
-        INameNormalizer normalizer)
+        Func<TRecord, object?[]> rowValuesSelector,
+        INameNormalizer normalizer,
+        Func<TRecord, IEnumerable<string?>>? searchableTextSelector = null)
     {
         _view = view;
         _loadAllAsync = loadAllAsync;
         _idSelector = idSelector;
         _nameSelector = nameSelector;
-        _columnsSelector = columnsSelector;
+        _rowValuesSelector = rowValuesSelector;
         _normalizer = normalizer;
+        _searchableTextSelector = searchableTextSelector;
 
         _view.LoadAllRequested += OnLoadAllRequested;
         _view.FilterRequested += OnFilterRequested;
@@ -72,8 +79,10 @@ public sealed class EntityBrowserPresenter<TRecord>
         {
             _view.SetStatus("Loading data from database...");
             var records = await _loadAllAsync(_loadCts.Token);
-            _allRecords = records.ToList();
-            _index = BuildIndex(_allRecords);
+            _index = BuildIndex(records);
+            _allRows = _index.Select(x => x.Row).ToList();
+            _dataVersion++;
+            _lastFilterQuery = null;
 
             await ApplyFilterAsync(_view.SearchText, _view.CurrentSearchMode);
         }
@@ -89,7 +98,7 @@ public sealed class EntityBrowserPresenter<TRecord>
 
     private async Task ApplyFilterAsync(string query, SearchMode mode)
     {
-        if (_allRecords.Count == 0)
+        if (_index.Count == 0)
         {
             _view.SetRows([]);
             _view.SetStatus("No data loaded. Click Load All.");
@@ -105,16 +114,23 @@ public sealed class EntityBrowserPresenter<TRecord>
             var normalizedQuery = _normalizer.NormalizeForSearch(query);
             var token = _filterCts.Token;
 
-            var filtered = await Task.Run(() =>
+            if (_lastFilteredVersion == _dataVersion
+                && string.Equals(_lastFilterQuery, normalizedQuery, StringComparison.Ordinal)
+                && _lastFilterMode == mode)
+            {
+                return;
+            }
+
+            var rows = await Task.Run(() =>
             {
                 token.ThrowIfCancellationRequested();
 
                 if (string.IsNullOrWhiteSpace(normalizedQuery))
                 {
-                    return _allRecords;
+                    return (IReadOnlyList<BrowserRow>)_allRows;
                 }
 
-                var result = new List<TRecord>();
+                var resultRows = new List<BrowserRow>(Math.Min(_index.Count, 4096));
 
                 foreach (var indexed in _index)
                 {
@@ -122,23 +138,22 @@ public sealed class EntityBrowserPresenter<TRecord>
 
                     var match = mode == SearchMode.ById
                         ? indexed.NormalizedId.Contains(normalizedQuery, StringComparison.Ordinal)
-                        : indexed.NormalizedName.Contains(normalizedQuery, StringComparison.Ordinal);
+                        : indexed.NormalizedSearchText.Contains(normalizedQuery, StringComparison.Ordinal);
 
                     if (match)
                     {
-                        result.Add(indexed.Item);
+                        resultRows.Add(indexed.Row);
                     }
                 }
 
-                return result;
+                return resultRows;
             }, token);
 
-            var rows = filtered
-                .Select(record => new BrowserRow(record!, _columnsSelector(record)))
-                .ToList();
-
             _view.SetRows(rows);
-            _view.SetStatus($"Loaded {_allRecords.Count.ToString("N0", CultureInfo.InvariantCulture)} records. Showing {rows.Count.ToString("N0", CultureInfo.InvariantCulture)}.");
+            _view.SetStatus($"Loaded {_allRows.Count.ToString("N0", CultureInfo.InvariantCulture)} records. Showing {rows.Count.ToString("N0", CultureInfo.InvariantCulture)}.");
+            _lastFilterQuery = normalizedQuery;
+            _lastFilterMode = mode;
+            _lastFilteredVersion = _dataVersion;
         }
         catch (OperationCanceledException)
         {
@@ -156,10 +171,16 @@ public sealed class EntityBrowserPresenter<TRecord>
 
         foreach (var record in records)
         {
+            var row = new BrowserRow(record!, _rowValuesSelector(record));
+            var searchableTextParts = (_searchableTextSelector?.Invoke(record) ?? [_nameSelector(record)])
+                .Where(x => !string.IsNullOrWhiteSpace(x));
+            var searchableText = string.Join(' ', searchableTextParts);
+
             index.Add(new SearchIndexedRecord<TRecord>(
                 record,
                 _normalizer.NormalizeForSearch(_idSelector(record).ToString(CultureInfo.InvariantCulture), removeDiacritics: false),
-                _normalizer.NormalizeForSearch(_nameSelector(record))));
+                _normalizer.NormalizeForSearch(searchableText),
+                row));
         }
 
         return index;

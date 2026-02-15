@@ -8,6 +8,9 @@ namespace App.WinForms;
 
 internal static class Program
 {
+    private const string DbProviderEnvKey = "YSM_DB_PROVIDER";
+    private const string DbConnectionStringEnvKey = "YSM_DB_CONNECTION_STRING";
+
     [STAThread]
     private static void Main()
     {
@@ -23,6 +26,7 @@ internal static class Program
 
         try
         {
+            LoadDotEnvIfPresent(appDirectory);
             ApplicationConfiguration.Initialize();
             ApplyNativeDarkMode();
             RegisterUnhandledExceptionHandlers();
@@ -35,16 +39,23 @@ internal static class Program
             ILuaCommandTemplateStore templateStore = new FileLuaCommandTemplateStore(luaFile);
             IAppSettingsService settingsService = new JsonAppSettingsService(settingsFile);
             INameNormalizer normalizer = new SearchNameNormalizer();
+            IConnectionStringBuilderService connectionStringBuilder = new DefaultConnectionStringBuilderService();
             ILuaCommandBuilder commandBuilder = new LuaCommandBuilder(templateStore);
             ICommandHistoryService commandHistory = new CommandHistoryService();
             IGameDataRepository repository = new GameDataRepository(queryStore, new DbConnectionFactory());
 
-            Application.Run(new MainForm(repository, settingsService, commandBuilder, commandHistory, normalizer));
+            Application.Run(new MainForm(
+                repository,
+                settingsService,
+                connectionStringBuilder,
+                commandBuilder,
+                commandHistory,
+                normalizer));
         }
         catch (Exception ex)
         {
             Log.Fatal(ex, "Application terminated unexpectedly.");
-            MessageBox.Show($"Fatal error:{Environment.NewLine}{ex.Message}", "YSM GM Tool", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"Fatal error:{Environment.NewLine}{ex.Message}", "GM Tool", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
         {
@@ -83,5 +94,93 @@ internal static class Program
 #else
         // Variant B (older previews): no stable SetColorMode API.
 #endif
+    }
+
+    private static void LoadDotEnvIfPresent(string appDirectory)
+    {
+        var envPath = FindDotEnvPath(appDirectory);
+        if (string.IsNullOrWhiteSpace(envPath) || !File.Exists(envPath))
+        {
+            return;
+        }
+
+        foreach (var rawLine in File.ReadLines(envPath))
+        {
+            var line = rawLine.Trim();
+            if (line.Length == 0 || line.StartsWith('#'))
+            {
+                continue;
+            }
+
+            var separatorIndex = line.IndexOf('=');
+            if (separatorIndex <= 0)
+            {
+                continue;
+            }
+
+            var key = line[..separatorIndex].Trim();
+            var value = line[(separatorIndex + 1)..].Trim();
+            if (value.StartsWith('\"') && value.EndsWith('\"') && value.Length >= 2)
+            {
+                value = value[1..^1];
+            }
+
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                continue;
+            }
+
+            Environment.SetEnvironmentVariable(key, value);
+        }
+
+        // Keep explicit keys visible in logs/debugging context.
+        Log.Information(
+            ".env loaded. {ProviderKey} set: {ProviderSet}, {ConnectionKey} set: {ConnectionSet}",
+            DbProviderEnvKey,
+            !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(DbProviderEnvKey)),
+            DbConnectionStringEnvKey,
+            !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(DbConnectionStringEnvKey)));
+    }
+
+    private static string? FindDotEnvPath(string appDirectory)
+    {
+        var directCandidates = new[]
+        {
+            Path.Combine(AppContext.BaseDirectory, ".env"),
+            Path.Combine(Directory.GetCurrentDirectory(), ".env"),
+            Path.Combine(appDirectory, ".env")
+        };
+
+        foreach (var candidate in directCandidates)
+        {
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        var searchRoots = new[]
+        {
+            Directory.GetCurrentDirectory(),
+            AppContext.BaseDirectory,
+            appDirectory
+        };
+
+        foreach (var root in searchRoots.Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            var directory = new DirectoryInfo(root);
+            while (directory is not null)
+            {
+                var candidate = Path.Combine(directory.FullName, ".env");
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
+
+                directory = directory.Parent;
+            }
+        }
+
+        return null;
     }
 }

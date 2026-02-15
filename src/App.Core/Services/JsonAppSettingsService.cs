@@ -22,7 +22,9 @@ public sealed class JsonAppSettingsService(string filePath) : IAppSettingsServic
         }
 
         await using var stream = File.OpenRead(_filePath);
-        var settings = await JsonSerializer.DeserializeAsync<AppSettings>(stream, JsonOptions, cancellationToken);
+        var settings = await JsonSerializer
+            .DeserializeAsync<AppSettings>(stream, JsonOptions, cancellationToken)
+            .ConfigureAwait(false);
         return settings ?? new AppSettings();
     }
 
@@ -35,6 +37,8 @@ public sealed class JsonAppSettingsService(string filePath) : IAppSettingsServic
         }
 
         await using var stream = File.Create(_filePath);
-        await JsonSerializer.SerializeAsync(stream, settings, JsonOptions, cancellationToken);
+        await JsonSerializer
+            .SerializeAsync(stream, settings, JsonOptions, cancellationToken)
+            .ConfigureAwait(false);
     }
 }

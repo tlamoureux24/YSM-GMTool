@@ -10,12 +10,12 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("App.WinForms")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("GM Tool")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c7f8cbcd445c69daf12c50aba3ae73e347f8a577")]
-[assembly: System.Reflection.AssemblyProductAttribute("App.WinForms")]
-[assembly: System.Reflection.AssemblyTitleAttribute("App.WinForms")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2ef9996f33813d9f5d9ca685aba7ad2acc73a80a")]
+[assembly: System.Reflection.AssemblyProductAttribute("GM Tool")]
+[assembly: System.Reflection.AssemblyTitleAttribute("GM Tool")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 [assembly: System.Runtime.Versioning.TargetPlatformAttribute("Windows7.0")]
 [assembly: System.Runtime.Versioning.SupportedOSPlatformAttribute("Windows7.0")]

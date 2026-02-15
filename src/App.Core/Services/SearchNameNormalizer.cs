@@ -7,9 +7,6 @@ namespace App.Core.Services;
 
 public sealed partial class SearchNameNormalizer : INameNormalizer
 {
-    [GeneratedRegex("<[^>]*>", RegexOptions.Compiled)]
-    private static partial Regex TagsRegex();
-
     [GeneratedRegex("\\s+", RegexOptions.Compiled)]
     private static partial Regex WhitespaceRegex();
 
@@ -20,8 +17,7 @@ public sealed partial class SearchNameNormalizer : INameNormalizer
             return string.Empty;
         }
 
-        var withoutTags = TagsRegex().Replace(value, " ");
-        var collapsedWhitespace = WhitespaceRegex().Replace(withoutTags, " ").Trim();
+        var collapsedWhitespace = WhitespaceRegex().Replace(value, " ").Trim();
 
         if (!removeDiacritics)
         {

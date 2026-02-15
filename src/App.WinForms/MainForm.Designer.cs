@@ -33,6 +33,7 @@ partial class MainForm
     private Button btnRemovePlayer;
     private CheckBox chkAppendCommands;
     private FontAwesome.Sharp.IconButton btnSettings;
+    private Button btnAbout;
     private TableLayoutPanel tlpCommandOverview;
     private ListBox lstCommands;
     private FlowLayoutPanel flpCommandButtons;
@@ -88,6 +89,7 @@ partial class MainForm
         btnRemovePlayer = new Button();
         chkAppendCommands = new CheckBox();
         btnSettings = new FontAwesome.Sharp.IconButton();
+        btnAbout = new Button();
         tlpRoot.SuspendLayout();
         tabMain.SuspendLayout();
         tabPlayerchecker.SuspendLayout();
@@ -361,11 +363,13 @@ partial class MainForm
         tlpSidebar.Controls.Add(flpPlayerButtons, 0, 7);
         tlpSidebar.Controls.Add(chkAppendCommands, 0, 8);
         tlpSidebar.Controls.Add(btnSettings, 0, 9);
+        tlpSidebar.Controls.Add(btnAbout, 0, 10);
         tlpSidebar.Dock = DockStyle.Fill;
         tlpSidebar.Location = new Point(1073, 3);
         tlpSidebar.Name = "tlpSidebar";
         tlpSidebar.Padding = new Padding(8);
-        tlpSidebar.RowCount = 10;
+        tlpSidebar.RowCount = 11;
+        tlpSidebar.RowStyles.Add(new RowStyle());
         tlpSidebar.RowStyles.Add(new RowStyle());
         tlpSidebar.RowStyles.Add(new RowStyle());
         tlpSidebar.RowStyles.Add(new RowStyle());
@@ -508,6 +512,17 @@ partial class MainForm
         btnSettings.UseVisualStyleBackColor = true;
         btnSettings.Click += btnSettings_Click;
         // 
+        // btnAbout
+        // 
+        btnAbout.Dock = DockStyle.Top;
+        btnAbout.Location = new Point(11, 453);
+        btnAbout.Name = "btnAbout";
+        btnAbout.Size = new Size(282, 32);
+        btnAbout.TabIndex = 10;
+        btnAbout.Text = "About";
+        btnAbout.UseVisualStyleBackColor = true;
+        btnAbout.Click += btnAbout_Click;
+        // 
         // MainForm
         // 
         AutoScaleDimensions = new SizeF(8F, 20F);
@@ -517,7 +532,7 @@ partial class MainForm
         MinimumSize = new Size(1200, 700);
         Name = "MainForm";
         StartPosition = FormStartPosition.CenterScreen;
-        Text = "YSM GM Tool";
+        Text = "GM Tool";
         Load += MainForm_Load;
         FormClosing += MainForm_FormClosing;
         tlpRoot.ResumeLayout(false);

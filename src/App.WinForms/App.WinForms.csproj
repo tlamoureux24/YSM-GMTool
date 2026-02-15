@@ -22,6 +22,31 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
+    <AssemblyName>GM Tool</AssemblyName>
+    <Product>GM Tool</Product>
+    <Title>GM Tool</Title>
+    <RootNamespace>App.WinForms</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <AutoPublishOnRelease>true</AutoPublishOnRelease>
+    <AutoPublishDir Condition="'$(AutoPublishDir)' == ''">$(USERPROFILE)\Desktop\GM Tool\</AutoPublishDir>
+    <AutoPublishSatelliteLanguages>pl;en</AutoPublishSatelliteLanguages>
+    <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..'))</RepositoryRoot>
   </PropertyGroup>
+
+  <Target Name="AutoPublishReleaseToDesktop"
+          AfterTargets="Build"
+          Condition="'$(Configuration)' == 'Release' and '$(AutoPublishOnRelease)' == 'true' and '$(IsAutoPublishInvocation)' != 'true'">
+    <Message Importance="high" Text="Auto publish (Release) -> $(AutoPublishDir)" />
+    <RemoveDir Directories="$(AutoPublishDir)" Condition="Exists('$(AutoPublishDir)')" />
+    <MakeDir Directories="$(AutoPublishDir)" />
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+             Targets="Publish"
+             Properties="Configuration=$(Configuration);IsAutoPublishInvocation=true;PublishDir=$(AutoPublishDir);RuntimeIdentifier=win-x64;SelfContained=false;PublishSingleFile=true;IncludeNativeLibrariesForSelfExtract=true;UseAppHost=true;CopyOutputSymbolsToPublishDirectory=false;DebugType=None;SatelliteResourceLanguages=$(AutoPublishSatelliteLanguages)"
+             StopOnFirstFailure="true" />
+    <Copy SourceFiles="$(RepositoryRoot)\.env"
+          DestinationFolder="$(AutoPublishDir)"
+          Condition="Exists('$(RepositoryRoot)\.env')"
+          SkipUnchangedFiles="true" />
+  </Target>
 </Project>

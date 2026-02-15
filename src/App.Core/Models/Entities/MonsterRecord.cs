@@ -7,4 +7,6 @@ public sealed class MonsterRecord
     public string Name { get; init; } = string.Empty;
 
     public int? Level { get; init; }
+
+    public string? Location { get; init; }
 }
