@@ -130,7 +130,6 @@ partial class MainForm
         tabMain.Controls.Add(tabBuffs);
         tabMain.Controls.Add(tabNpcs);
         tabMain.Controls.Add(tabSummons);
-        tabMain.Controls.Add(tabCommandOverview);
         tabMain.Dock = DockStyle.Fill;
         tabMain.Location = new Point(3, 3);
         tabMain.Name = "tabMain";
@@ -479,7 +478,7 @@ partial class MainForm
         chkAppendCommands.Padding = new Padding(0, 10, 0, 0);
         chkAppendCommands.Size = new Size(222, 34);
         chkAppendCommands.TabIndex = 7;
-        chkAppendCommands.Text = "Append / run to commands";
+        chkAppendCommands.Text = "Append /run to commands";
         chkAppendCommands.UseVisualStyleBackColor = true;
         chkAppendCommands.CheckedChanged += chkAppendCommands_CheckedChanged;
         // 

@@ -72,8 +72,6 @@ public partial class MainForm : Form
         ConfigureBrowserColumns();
         InitializePresenters();
         WireActionEvents();
-
-        _commandHistoryService.CommandsChanged += CommandHistoryService_CommandsChanged;
     }
 
     private void ApplyBrandingIcon()
@@ -491,7 +489,6 @@ public partial class MainForm : Form
             EnsureSettingsDefaults();
             ApplyEnvironmentDefaults();
             ApplySettingsToUi();
-            RefreshCommandList();
         }
         catch (Exception ex)
         {
@@ -1231,17 +1228,30 @@ public partial class MainForm : Form
         try
         {
             var command = _luaCommandBuilder.Build(templateKey, values);
+            command = ApplyRunPrefixIfEnabled(command);
             Clipboard.SetText(command);
-
-            if (chkAppendCommands.Checked)
-            {
-                _commandHistoryService.Add(command);
-            }
         }
         catch (Exception ex)
         {
             ShowError("Failed to generate command.", ex);
         }
+    }
+
+    private string ApplyRunPrefixIfEnabled(string command)
+    {
+        if (!chkAppendCommands.Checked)
+        {
+            return command;
+        }
+
+        var trimmed = command.TrimStart();
+        if (trimmed.StartsWith("//", StringComparison.Ordinal)
+            || trimmed.StartsWith("/run ", StringComparison.OrdinalIgnoreCase))
+        {
+            return command;
+        }
+
+        return $"/run {command}";
     }
 
     private static string EscapeLuaSingleQuotedString(string value)
