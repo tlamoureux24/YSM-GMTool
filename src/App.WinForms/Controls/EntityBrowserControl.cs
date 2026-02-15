@@ -80,6 +80,8 @@ public partial class EntityBrowserControl : UserControl
         gridRecords.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         gridRecords.ReadOnly = true;
         gridRecords.RowHeadersVisible = false;
+        gridRecords.AllowUserToResizeRows = false;
+        gridRecords.RowTemplate.Resizable = DataGridViewTriState.False;
         gridRecords.AutoGenerateColumns = false;
         gridRecords.EnableHeadersVisualStyles = false;
         gridRecords.ColumnHeadersDefaultCellStyle.SelectionBackColor = gridRecords.ColumnHeadersDefaultCellStyle.BackColor;

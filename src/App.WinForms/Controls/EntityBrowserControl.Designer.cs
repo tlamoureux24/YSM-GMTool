@@ -50,9 +50,10 @@ partial class EntityBrowserControl
         // splitMain
         // 
         splitMain.Dock = DockStyle.Fill;
-        splitMain.FixedPanel = FixedPanel.Panel2;
         splitMain.Location = new Point(0, 0);
         splitMain.Name = "splitMain";
+        splitMain.Panel1MinSize = 320;
+        splitMain.Panel2MinSize = 430;
         // 
         // splitMain.Panel1
         // 
@@ -62,7 +63,7 @@ partial class EntityBrowserControl
         // 
         splitMain.Panel2.Controls.Add(tlpCenter);
         splitMain.Size = new Size(1040, 640);
-        splitMain.SplitterDistance = 560;
+        splitMain.SplitterDistance = 460;
         splitMain.TabIndex = 0;
         // 
         // gridRecords

@@ -268,7 +268,14 @@ public partial class MainForm : Form
                     p.ErrorOccurred += OnPresenterError;
                     break;
                 case EntityBrowserPresenter<MonsterRecord> p:
-                    p.SelectedRecordChanged += (_, selected) => _selectedMonster = selected;
+                    p.SelectedRecordChanged += (_, selected) =>
+                    {
+                        _selectedMonster = selected;
+                        if (selected is not null)
+                        {
+                            _monsterActions.MonsterId = selected.Id;
+                        }
+                    };
                     p.ErrorOccurred += OnPresenterError;
                     break;
                 case EntityBrowserPresenter<ItemRecord> p:
@@ -419,30 +426,59 @@ public partial class MainForm : Form
 
     private void MonsterActions_CreateCommandRequested(object? sender, EventArgs e)
     {
-        if (!RequireSelection(_selectedMonster, "monster"))
+        var monsterId = _monsterActions.MonsterId;
+        if (monsterId <= 0)
         {
+            if (_selectedMonster is null)
+            {
+                MessageBox.Show(this, "Select a monster or enter Monster ID first.", "Monster", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            monsterId = _selectedMonster.Id;
+        }
+
+        var count = _monsterActions.Amount;
+        var minutesLifetime = _monsterActions.UseLifetime ? _monsterActions.MinutesLifetime : -1;
+
+        if (_monsterActions.SpawnMode.Equals("At your place", StringComparison.OrdinalIgnoreCase))
+        {
+            BuildAndDispatchCommand("monsterRegenerate", new Dictionary<string, object?>
+            {
+                ["monsterId"] = monsterId,
+                ["count"] = count
+            });
             return;
         }
 
-        if (_monsterActions.SpawnMode.Equals("Coordinates", StringComparison.OrdinalIgnoreCase))
+        if (_monsterActions.SpawnMode.Equals("At selected player place", StringComparison.OrdinalIgnoreCase))
         {
-            BuildAndDispatchCommand("spawnMonsterAtCoords", new Dictionary<string, object?>
+            var selectedPlayer = ResolveTargetPlayer();
+            if (selectedPlayer.Equals("self", StringComparison.OrdinalIgnoreCase))
             {
-                ["id"] = _selectedMonster!.Id,
-                ["amount"] = _monsterActions.Amount,
-                ["x"] = _monsterActions.X,
-                ["y"] = _monsterActions.Y,
-                ["layer"] = _monsterActions.Layer
+                MessageBox.Show(this, "Select player in the right sidebar for 'At selected player place'.", "Monster", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            BuildAndDispatchCommand("monsterAddNpcAtPlayer", new Dictionary<string, object?>
+            {
+                ["playerName"] = EscapeLuaSingleQuotedString(selectedPlayer),
+                ["monsterId"] = monsterId,
+                ["count"] = count,
+                ["minutesLifetime"] = minutesLifetime
             });
+            return;
         }
-        else
+
+        BuildAndDispatchCommand("monsterAddNpcAtCoords", new Dictionary<string, object?>
         {
-            BuildAndDispatchCommand("spawnMonsterAtPlayer", new Dictionary<string, object?>
-            {
-                ["id"] = _selectedMonster!.Id,
-                ["amount"] = _monsterActions.Amount
-            });
-        }
+            ["x"] = _monsterActions.X,
+            ["y"] = _monsterActions.Y,
+            ["monsterId"] = monsterId,
+            ["count"] = count,
+            ["minutesLifetime"] = minutesLifetime,
+            ["layer"] = _monsterActions.Layer
+        });
     }
 
     private void ItemsActions_CreateGiveCommandRequested(object? sender, EventArgs e)
@@ -611,6 +647,9 @@ public partial class MainForm : Form
             ShowError("Failed to generate command.", ex);
         }
     }
+
+    private static string EscapeLuaSingleQuotedString(string value)
+        => value.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("'", "\\'", StringComparison.Ordinal);
 
     private static bool RequireSelection<T>(T? selected, string entityName) where T : class
     {

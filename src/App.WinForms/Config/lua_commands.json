@@ -1,7 +1,8 @@
 {
   "playerCheck": "player_checker('{name}')",
-  "spawnMonsterAtPlayer": "spawn_monster({id}, {amount})",
-  "spawnMonsterAtCoords": "spawn_monster({id}, {amount}, {x}, {y}, {layer})",
+  "monsterRegenerate": "//regenerate {monsterId} {count}",
+  "monsterAddNpcAtPlayer": "add_npc( gv('x','{playerName}'), gv('y','{playerName}'),{monsterId},{count},{minutesLifetime}, gv('layer','{playerName}'))",
+  "monsterAddNpcAtCoords": "add_npc( {x},{y},{monsterId},{count},{minutesLifetime},{layer})",
   "addItemToSelf": "add_item_self({itemId}, {amount}, {level}, {enhance}, {itmcode})",
   "giveItemToPlayer": "give_item('{target}', {itemId}, {amount}, {level}, {enhance}, {itmcode})",
   "learnSkill": "learn_skill('{target}', {skillId})",
