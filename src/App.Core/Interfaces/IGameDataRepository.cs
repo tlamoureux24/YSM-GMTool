@@ -11,6 +11,28 @@ public interface IGameDataRepository
         IReadOnlyDictionary<string, string>? queryTokens = null,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<PlayerRecord>> GetCharactersBySearchAsync(
+        DatabaseProvider provider,
+        string connectionString,
+        string searchTerm,
+        bool searchByAccount,
+        IReadOnlyDictionary<string, string>? queryTokens = null,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<InventoryItemRecord>> GetInventoryAsync(
+        DatabaseProvider provider,
+        string connectionString,
+        int characterId,
+        IReadOnlyDictionary<string, string>? queryTokens = null,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<InventoryItemRecord>> GetWarehouseAsync(
+        DatabaseProvider provider,
+        string connectionString,
+        string accountName,
+        IReadOnlyDictionary<string, string>? queryTokens = null,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<MonsterRecord>> GetMonstersAsync(
         DatabaseProvider provider,
         string connectionString,

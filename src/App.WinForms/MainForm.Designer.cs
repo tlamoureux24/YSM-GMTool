@@ -13,7 +13,9 @@ partial class MainForm
     private TabPage tabNpcs;
     private TabPage tabSummons;
     private TabPage tabCommandOverview;
+    private SplitContainer splitPlayerchecker;
     private Controls.EntityBrowserControl browserPlayerchecker;
+    private DataGridView gridInventory;
     private Controls.EntityBrowserControl browserMonster;
     private Controls.EntityBrowserControl browserItems;
     private Controls.EntityBrowserControl browserSkills;
@@ -55,7 +57,9 @@ partial class MainForm
         tlpRoot = new TableLayoutPanel();
         tabMain = new TabControl();
         tabPlayerchecker = new TabPage();
+        splitPlayerchecker = new SplitContainer();
         browserPlayerchecker = new Controls.EntityBrowserControl();
+        gridInventory = new DataGridView();
         tabMonster = new TabPage();
         browserMonster = new Controls.EntityBrowserControl();
         tabItems = new TabPage();
@@ -91,6 +95,11 @@ partial class MainForm
         tlpRoot.SuspendLayout();
         tabMain.SuspendLayout();
         tabPlayerchecker.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)splitPlayerchecker).BeginInit();
+        splitPlayerchecker.Panel1.SuspendLayout();
+        splitPlayerchecker.Panel2.SuspendLayout();
+        splitPlayerchecker.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)gridInventory).BeginInit();
         tabMonster.SuspendLayout();
         tabItems.SuspendLayout();
         tabSkills.SuspendLayout();
@@ -136,10 +145,10 @@ partial class MainForm
         tabMain.SelectedIndex = 0;
         tabMain.Size = new Size(1064, 854);
         tabMain.TabIndex = 0;
-        // 
+        //
         // tabPlayerchecker
-        // 
-        tabPlayerchecker.Controls.Add(browserPlayerchecker);
+        //
+        tabPlayerchecker.Controls.Add(splitPlayerchecker);
         tabPlayerchecker.Location = new Point(4, 29);
         tabPlayerchecker.Name = "tabPlayerchecker";
         tabPlayerchecker.Padding = new Padding(3);
@@ -147,14 +156,48 @@ partial class MainForm
         tabPlayerchecker.TabIndex = 0;
         tabPlayerchecker.Text = "Playerchecker";
         tabPlayerchecker.UseVisualStyleBackColor = true;
-        // 
+        //
+        // splitPlayerchecker
+        //
+        splitPlayerchecker.Dock = DockStyle.Fill;
+        splitPlayerchecker.Location = new Point(3, 3);
+        splitPlayerchecker.Name = "splitPlayerchecker";
+        splitPlayerchecker.Orientation = Orientation.Horizontal;
+        splitPlayerchecker.Panel1.Controls.Add(browserPlayerchecker);
+        splitPlayerchecker.Panel2.Controls.Add(gridInventory);
+        splitPlayerchecker.Panel1MinSize = 220;
+        splitPlayerchecker.Panel2MinSize = 150;
+        splitPlayerchecker.SplitterDistance = 500;
+        splitPlayerchecker.Size = new Size(1050, 815);
+        splitPlayerchecker.TabIndex = 0;
+        //
         // browserPlayerchecker
-        // 
+        //
         browserPlayerchecker.Dock = DockStyle.Fill;
-        browserPlayerchecker.Location = new Point(3, 3);
+        browserPlayerchecker.Location = new Point(0, 0);
         browserPlayerchecker.Name = "browserPlayerchecker";
-        browserPlayerchecker.Size = new Size(1050, 815);
+        browserPlayerchecker.Size = new Size(1050, 500);
         browserPlayerchecker.TabIndex = 0;
+        //
+        // gridInventory
+        //
+        gridInventory.AllowUserToAddRows = false;
+        gridInventory.AllowUserToDeleteRows = false;
+        gridInventory.AllowUserToResizeRows = false;
+        gridInventory.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        gridInventory.BackgroundColor = System.Drawing.Color.FromArgb(30, 34, 41);
+        gridInventory.BorderStyle = BorderStyle.FixedSingle;
+        gridInventory.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        gridInventory.Dock = DockStyle.Fill;
+        gridInventory.EnableHeadersVisualStyles = false;
+        gridInventory.Location = new Point(0, 0);
+        gridInventory.MultiSelect = false;
+        gridInventory.Name = "gridInventory";
+        gridInventory.ReadOnly = true;
+        gridInventory.RowHeadersVisible = false;
+        gridInventory.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        gridInventory.Size = new Size(1050, 311);
+        gridInventory.TabIndex = 0;
         // 
         // tabMonster
         // 
@@ -530,6 +573,11 @@ partial class MainForm
         FormClosing += MainForm_FormClosing;
         tlpRoot.ResumeLayout(false);
         tabMain.ResumeLayout(false);
+        splitPlayerchecker.Panel1.ResumeLayout(false);
+        splitPlayerchecker.Panel2.ResumeLayout(false);
+        ((System.ComponentModel.ISupportInitialize)splitPlayerchecker).EndInit();
+        splitPlayerchecker.ResumeLayout(false);
+        ((System.ComponentModel.ISupportInitialize)gridInventory).EndInit();
         tabPlayerchecker.ResumeLayout(false);
         tabMonster.ResumeLayout(false);
         tabItems.ResumeLayout(false);

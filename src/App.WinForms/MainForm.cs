@@ -137,6 +137,24 @@ public partial class MainForm : Form
         txtNewPlayer.ForeColor = text;
         cmbPlayers.BackColor = panelAlt;
         cmbPlayers.ForeColor = text;
+
+        var border = Color.FromArgb(68, 78, 95);
+        var header = Color.FromArgb(48, 55, 67);
+        var accent = Color.FromArgb(72, 118, 196);
+        gridInventory.BackgroundColor = Color.FromArgb(30, 34, 41);
+        gridInventory.GridColor = border;
+        gridInventory.BorderStyle = BorderStyle.FixedSingle;
+        gridInventory.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+        gridInventory.DefaultCellStyle.BackColor = Color.FromArgb(30, 34, 41);
+        gridInventory.DefaultCellStyle.ForeColor = text;
+        gridInventory.DefaultCellStyle.SelectionBackColor = accent;
+        gridInventory.DefaultCellStyle.SelectionForeColor = Color.White;
+        gridInventory.AlternatingRowsDefaultCellStyle.BackColor = panelAlt;
+        gridInventory.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+        gridInventory.ColumnHeadersDefaultCellStyle.BackColor = header;
+        gridInventory.ColumnHeadersDefaultCellStyle.ForeColor = text;
+        gridInventory.ColumnHeadersDefaultCellStyle.SelectionBackColor = header;
+        gridInventory.ColumnHeadersDefaultCellStyle.SelectionForeColor = text;
     }
 
     private void AttachActionControls()
@@ -194,10 +212,15 @@ public partial class MainForm : Form
         browserPlayerchecker.ConfigureColumns(
         [
             new BrowserColumnDefinition("playerId", "ID", 80),
-            new BrowserColumnDefinition("playerName", "Name", 320, true),
-            new BrowserColumnDefinition("level", "Level", 90),
-            new BrowserColumnDefinition("job", "Job", 200)
+            new BrowserColumnDefinition("playerName", "Name", 230, true),
+            new BrowserColumnDefinition("account", "Account", 200, true),
+            new BrowserColumnDefinition("level", "Level", 80),
+            new BrowserColumnDefinition("job", "Job", 160, true),
+            new BrowserColumnDefinition("status", "Status", 90)
         ]);
+        browserPlayerchecker.ConfigureSearchLabels("by Account", "by Char Name");
+        browserPlayerchecker.HideLoadAllButton();
+        browserPlayerchecker.SetDebounceDelay(350);
 
         browserMonster.ConfigureColumns(
         [
@@ -254,10 +277,19 @@ public partial class MainForm : Form
             [
                 x.PlayerId,
                 x.PlayerName,
+                x.Account,
                 x.Level,
-                x.JobName ?? string.Empty
+                x.JobName ?? string.Empty,
+                x.OnlineStatus
             ],
-            _nameNormalizer);
+            _nameNormalizer,
+            sqlSearchAsync: (term, mode, ct) => _repository.GetCharactersBySearchAsync(
+                _settings.Provider,
+                GetConfiguredConnectionString(),
+                term,
+                searchByAccount: mode == SearchMode.ById,
+                GetQueryTokens(),
+                ct));
 
         _monsterPresenter = new EntityBrowserPresenter<MonsterRecord>(
             browserMonster,
@@ -456,6 +488,9 @@ public partial class MainForm : Form
     private void WireActionEvents()
     {
         _playerCheckerActions.CreateCheckCommandRequested += PlayerCheckerActions_CreateCheckCommandRequested;
+        _playerCheckerActions.LoadInventoryRequested += PlayerCheckerActions_LoadInventoryRequested;
+        _playerCheckerActions.LoadWarehouseRequested += PlayerCheckerActions_LoadWarehouseRequested;
+        _playerCheckerActions.OpenInfosRequested += PlayerCheckerActions_OpenInfosRequested;
         _monsterActions.CreateCommandRequested += MonsterActions_CreateCommandRequested;
         _itemsActions.AddYourselfRequested += ItemsActions_AddYourselfRequested;
         _itemsActions.GiveOtherPlayerRequested += ItemsActions_GiveOtherPlayerRequested;
@@ -585,6 +620,104 @@ public partial class MainForm : Form
             ["name"] = playerName
         });
     }
+
+    private async void PlayerCheckerActions_LoadInventoryRequested(object? sender, EventArgs e)
+    {
+        if (_selectedPlayerRecord is null)
+        {
+            MessageBox.Show(this, "Select a player first.", "Load Inventory", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        try
+        {
+            var items = await _repository.GetInventoryAsync(
+                _settings.Provider,
+                GetConfiguredConnectionString(),
+                _selectedPlayerRecord.PlayerId,
+                GetQueryTokens());
+
+            PopulateInventoryGrid(items, $"Inventory — {_selectedPlayerRecord.PlayerName} ({items.Count} item(s))");
+        }
+        catch (Exception ex)
+        {
+            ShowError("Failed to load inventory.", ex);
+        }
+    }
+
+    private async void PlayerCheckerActions_LoadWarehouseRequested(object? sender, EventArgs e)
+    {
+        if (_selectedPlayerRecord is null)
+        {
+            MessageBox.Show(this, "Select a player first.", "Load Warehouse", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        try
+        {
+            var items = await _repository.GetWarehouseAsync(
+                _settings.Provider,
+                GetConfiguredConnectionString(),
+                _selectedPlayerRecord.Account,
+                GetQueryTokens());
+
+            PopulateInventoryGrid(items, $"Warehouse — {_selectedPlayerRecord.Account} ({items.Count} item(s))");
+        }
+        catch (Exception ex)
+        {
+            ShowError("Failed to load warehouse.", ex);
+        }
+    }
+
+    private void PlayerCheckerActions_OpenInfosRequested(object? sender, EventArgs e)
+    {
+        if (_selectedPlayerRecord is null)
+        {
+            MessageBox.Show(this, "Select a player first.", "Player Info", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        var r = _selectedPlayerRecord;
+        MessageBox.Show(
+            this,
+            $"Name: {r.PlayerName}\nAccount: {r.Account}\nLevel: {r.Level}\nJob: {r.JobName}\nStatus: {r.OnlineStatus}",
+            "Player Info",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information);
+    }
+
+    private void PopulateInventoryGrid(IReadOnlyList<InventoryItemRecord> items, string headerLabel)
+    {
+        gridInventory.SuspendLayout();
+        gridInventory.Rows.Clear();
+        gridInventory.Columns.Clear();
+
+        gridInventory.Columns.Add(NewCol("itemId", "Item ID", 90));
+        gridInventory.Columns.Add(NewCol("itemName", "Name", 300, fill: true));
+        gridInventory.Columns.Add(NewCol("count", "Count", 70));
+        gridInventory.Columns.Add(NewCol("level", "Level", 70));
+        gridInventory.Columns.Add(NewCol("enhance", "Enhance", 75));
+        gridInventory.Columns.Add(NewCol("wearInfo", "Wear", 60));
+
+        foreach (var item in items)
+        {
+            gridInventory.Rows.Add(item.ItemId, item.ItemName, item.Count, item.Level, item.Enhance, item.WearInfo);
+        }
+
+        gridInventory.ResumeLayout();
+    }
+
+    private static DataGridViewTextBoxColumn NewCol(string name, string header, int width, bool fill = false)
+        => new()
+        {
+            Name = name,
+            HeaderText = header,
+            Width = width,
+            ReadOnly = true,
+            SortMode = DataGridViewColumnSortMode.NotSortable,
+            AutoSizeMode = fill ? DataGridViewAutoSizeColumnMode.Fill : DataGridViewAutoSizeColumnMode.None,
+            MinimumWidth = width / 2
+        };
 
     private void MonsterActions_CreateCommandRequested(object? sender, EventArgs e)
     {

@@ -10,6 +10,7 @@ public partial class EntityBrowserControl : UserControl
     private CancellationTokenSource? _debounceCts;
     private bool _splitterInitialized;
     private bool _splitterUserAdjusted;
+    private int _debounceMs = 120;
 
     public EntityBrowserControl()
     {
@@ -45,6 +46,22 @@ public partial class EntityBrowserControl : UserControl
 
             return SearchMode.ByName;
         }
+    }
+
+    public void ConfigureSearchLabels(string byIdLabel, string byNameLabel)
+    {
+        rbSearchById.Text = byIdLabel;
+        rbSearchByName.Text = byNameLabel;
+    }
+
+    public void HideLoadAllButton()
+    {
+        btnLoadAll.Visible = false;
+    }
+
+    public void SetDebounceDelay(int milliseconds)
+    {
+        _debounceMs = Math.Max(50, milliseconds);
     }
 
     public void ConfigureSecondarySearch(bool enabled, string label = "Search by Contact script")
@@ -244,7 +261,7 @@ public partial class EntityBrowserControl : UserControl
 
         try
         {
-            await Task.Delay(120, _debounceCts.Token);
+            await Task.Delay(_debounceMs, _debounceCts.Token);
             FilterRequested?.Invoke(this, EventArgs.Empty);
         }
         catch (OperationCanceledException)

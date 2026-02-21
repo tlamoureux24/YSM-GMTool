@@ -7,6 +7,10 @@ partial class PlayerCheckerActionsControl
     private TableLayoutPanel tlp;
     private Label lblPlayerName;
     private TextBox txtPlayerName;
+    private TableLayoutPanel tlpActionButtons;
+    private Button btnLoadInventory;
+    private Button btnLoadWh;
+    private Button btnOpenInfos;
     private Button btnCreateCheckCommand;
 
     protected override void Dispose(bool disposing)
@@ -25,41 +29,48 @@ partial class PlayerCheckerActionsControl
         tlp = new TableLayoutPanel();
         lblPlayerName = new Label();
         txtPlayerName = new TextBox();
+        tlpActionButtons = new TableLayoutPanel();
+        btnLoadInventory = new Button();
+        btnLoadWh = new Button();
+        btnOpenInfos = new Button();
         btnCreateCheckCommand = new Button();
         gbPlayerChecker.SuspendLayout();
         tlp.SuspendLayout();
+        tlpActionButtons.SuspendLayout();
         SuspendLayout();
-        // 
+        //
         // gbPlayerChecker
-        // 
+        //
         gbPlayerChecker.Controls.Add(tlp);
         gbPlayerChecker.Dock = DockStyle.Fill;
         gbPlayerChecker.Location = new Point(0, 0);
         gbPlayerChecker.Name = "gbPlayerChecker";
-        gbPlayerChecker.Size = new Size(430, 160);
+        gbPlayerChecker.Size = new Size(430, 190);
         gbPlayerChecker.TabIndex = 0;
         gbPlayerChecker.TabStop = false;
         gbPlayerChecker.Text = "Playerchecker Actions";
-        // 
+        //
         // tlp
-        // 
+        //
         tlp.ColumnCount = 2;
         tlp.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         tlp.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
         tlp.Controls.Add(lblPlayerName, 0, 0);
         tlp.Controls.Add(txtPlayerName, 1, 0);
-        tlp.Controls.Add(btnCreateCheckCommand, 0, 1);
+        tlp.Controls.Add(tlpActionButtons, 0, 1);
+        tlp.Controls.Add(btnCreateCheckCommand, 0, 2);
         tlp.Dock = DockStyle.Fill;
         tlp.Location = new Point(3, 23);
         tlp.Name = "tlp";
-        tlp.RowCount = 2;
+        tlp.RowCount = 3;
         tlp.RowStyles.Add(new RowStyle());
         tlp.RowStyles.Add(new RowStyle());
-        tlp.Size = new Size(424, 134);
+        tlp.RowStyles.Add(new RowStyle());
+        tlp.Size = new Size(424, 164);
         tlp.TabIndex = 0;
-        // 
+        //
         // lblPlayerName
-        // 
+        //
         lblPlayerName.Anchor = AnchorStyles.Left;
         lblPlayerName.AutoSize = true;
         lblPlayerName.Location = new Point(3, 9);
@@ -67,38 +78,90 @@ partial class PlayerCheckerActionsControl
         lblPlayerName.Size = new Size(91, 20);
         lblPlayerName.TabIndex = 0;
         lblPlayerName.Text = "Player name";
-        // 
+        //
         // txtPlayerName
-        // 
+        //
         txtPlayerName.Dock = DockStyle.Fill;
         txtPlayerName.Location = new Point(100, 3);
         txtPlayerName.Name = "txtPlayerName";
         txtPlayerName.PlaceholderText = "optional, fallback to selected row";
         txtPlayerName.Size = new Size(321, 27);
         txtPlayerName.TabIndex = 1;
-        // 
+        //
+        // tlpActionButtons
+        //
+        tlp.SetColumnSpan(tlpActionButtons, 2);
+        tlpActionButtons.ColumnCount = 3;
+        tlpActionButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3F));
+        tlpActionButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3F));
+        tlpActionButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.4F));
+        tlpActionButtons.Controls.Add(btnLoadInventory, 0, 0);
+        tlpActionButtons.Controls.Add(btnLoadWh, 1, 0);
+        tlpActionButtons.Controls.Add(btnOpenInfos, 2, 0);
+        tlpActionButtons.Dock = DockStyle.Fill;
+        tlpActionButtons.Location = new Point(3, 36);
+        tlpActionButtons.Name = "tlpActionButtons";
+        tlpActionButtons.RowCount = 1;
+        tlpActionButtons.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        tlpActionButtons.Size = new Size(418, 35);
+        tlpActionButtons.TabIndex = 2;
+        //
+        // btnLoadInventory
+        //
+        btnLoadInventory.Dock = DockStyle.Fill;
+        btnLoadInventory.Location = new Point(3, 3);
+        btnLoadInventory.Name = "btnLoadInventory";
+        btnLoadInventory.Size = new Size(133, 29);
+        btnLoadInventory.TabIndex = 0;
+        btnLoadInventory.Text = "Load inventory";
+        btnLoadInventory.UseVisualStyleBackColor = true;
+        btnLoadInventory.Click += btnLoadInventory_Click;
+        //
+        // btnLoadWh
+        //
+        btnLoadWh.Dock = DockStyle.Fill;
+        btnLoadWh.Location = new Point(142, 3);
+        btnLoadWh.Name = "btnLoadWh";
+        btnLoadWh.Size = new Size(133, 29);
+        btnLoadWh.TabIndex = 1;
+        btnLoadWh.Text = "Load WH";
+        btnLoadWh.UseVisualStyleBackColor = true;
+        btnLoadWh.Click += btnLoadWh_Click;
+        //
+        // btnOpenInfos
+        //
+        btnOpenInfos.Dock = DockStyle.Fill;
+        btnOpenInfos.Location = new Point(281, 3);
+        btnOpenInfos.Name = "btnOpenInfos";
+        btnOpenInfos.Size = new Size(134, 29);
+        btnOpenInfos.TabIndex = 2;
+        btnOpenInfos.Text = "Open infos";
+        btnOpenInfos.UseVisualStyleBackColor = true;
+        btnOpenInfos.Click += btnOpenInfos_Click;
+        //
         // btnCreateCheckCommand
-        // 
+        //
         tlp.SetColumnSpan(btnCreateCheckCommand, 2);
         btnCreateCheckCommand.Dock = DockStyle.Fill;
-        btnCreateCheckCommand.Location = new Point(3, 36);
+        btnCreateCheckCommand.Location = new Point(3, 77);
         btnCreateCheckCommand.Name = "btnCreateCheckCommand";
         btnCreateCheckCommand.Size = new Size(418, 29);
-        btnCreateCheckCommand.TabIndex = 2;
+        btnCreateCheckCommand.TabIndex = 3;
         btnCreateCheckCommand.Text = "Create check command";
         btnCreateCheckCommand.UseVisualStyleBackColor = true;
         btnCreateCheckCommand.Click += btnCreateCheckCommand_Click;
-        // 
+        //
         // PlayerCheckerActionsControl
-        // 
+        //
         AutoScaleDimensions = new SizeF(8F, 20F);
         AutoScaleMode = AutoScaleMode.Font;
         Controls.Add(gbPlayerChecker);
         Name = "PlayerCheckerActionsControl";
-        Size = new Size(430, 160);
+        Size = new Size(430, 190);
         gbPlayerChecker.ResumeLayout(false);
         tlp.ResumeLayout(false);
         tlp.PerformLayout();
+        tlpActionButtons.ResumeLayout(false);
         ResumeLayout(false);
     }
 }

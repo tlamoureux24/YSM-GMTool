@@ -61,6 +61,10 @@ public sealed class FileQueryStore : IQueryStore
     private static string ResolveEntityKey(QueryEntity entity) => entity switch
     {
         QueryEntity.Playerchecker => "Playerchecker",
+        QueryEntity.PlayercheckerByCharName => "PlayercheckerByCharName",
+        QueryEntity.PlayercheckerByAccount => "PlayercheckerByAccount",
+        QueryEntity.PlayerInventory => "PlayerInventory",
+        QueryEntity.PlayerWarehouse => "PlayerWarehouse",
         QueryEntity.Monsters => "Monsters",
         QueryEntity.Items => "Items",
         QueryEntity.Skills => "Skills",

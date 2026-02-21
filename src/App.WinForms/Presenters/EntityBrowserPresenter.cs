@@ -16,6 +16,9 @@ public sealed class EntityBrowserPresenter<TRecord>
     private readonly Func<TRecord, object?[]> _rowValuesSelector;
     private readonly INameNormalizer _normalizer;
 
+    // When provided, typing in the search box triggers a SQL-level query instead of in-memory filtering.
+    private readonly Func<string, SearchMode, CancellationToken, Task<IReadOnlyList<TRecord>>>? _sqlSearchAsync;
+
     private List<BrowserRow> _allRows = [];
     private List<SearchIndexedRecord<TRecord>> _index = [];
     private string? _lastFilterQuery;
@@ -34,7 +37,8 @@ public sealed class EntityBrowserPresenter<TRecord>
         Func<TRecord, object?[]> rowValuesSelector,
         INameNormalizer normalizer,
         Func<TRecord, IEnumerable<string?>>? searchableTextSelector = null,
-        Func<TRecord, string?>? secondarySearchTextSelector = null)
+        Func<TRecord, string?>? secondarySearchTextSelector = null,
+        Func<string, SearchMode, CancellationToken, Task<IReadOnlyList<TRecord>>>? sqlSearchAsync = null)
     {
         _view = view;
         _loadAllAsync = loadAllAsync;
@@ -44,6 +48,7 @@ public sealed class EntityBrowserPresenter<TRecord>
         _normalizer = normalizer;
         _searchableTextSelector = searchableTextSelector;
         _secondarySearchTextSelector = secondarySearchTextSelector;
+        _sqlSearchAsync = sqlSearchAsync;
 
         _view.LoadAllRequested += OnLoadAllRequested;
         _view.FilterRequested += OnFilterRequested;
@@ -101,6 +106,46 @@ public sealed class EntityBrowserPresenter<TRecord>
 
     private async Task ApplyFilterAsync(string query, SearchMode mode)
     {
+        // SQL-level search path: bypass the in-memory index entirely.
+        if (_sqlSearchAsync != null)
+        {
+            _filterCts?.Cancel();
+            _filterCts?.Dispose();
+            _filterCts = new CancellationTokenSource();
+
+            try
+            {
+                var token = _filterCts.Token;
+                var trimmedQuery = query.Trim();
+
+                if (string.IsNullOrWhiteSpace(trimmedQuery))
+                {
+                    _view.SetRows([]);
+                    _view.SetStatus("Enter a search term and press Search.");
+                    return;
+                }
+
+                _view.SetStatus("Searching...");
+                var records = await _sqlSearchAsync(trimmedQuery, mode, token);
+                _index = BuildIndex(records);
+                _allRows = _index.Select(x => x.Row).ToList();
+                _dataVersion++;
+                _view.SetRows(_allRows);
+                _view.SetStatus($"Found {_allRows.Count.ToString("N0", CultureInfo.InvariantCulture)} record(s).");
+            }
+            catch (OperationCanceledException)
+            {
+                // Ignore stale filter operations.
+            }
+            catch (Exception ex)
+            {
+                ErrorOccurred?.Invoke(this, ex);
+            }
+
+            return;
+        }
+
+        // In-memory filter path (existing logic).
         if (_index.Count == 0)
         {
             _view.SetRows([]);
