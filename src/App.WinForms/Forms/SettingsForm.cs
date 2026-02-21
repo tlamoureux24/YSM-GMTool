@@ -69,7 +69,6 @@ public partial class SettingsForm : Form
         _isLoading = false;
 
         UpdateAuthUi();
-        RefreshConnectionPreview();
     }
 
     private void ReadControlsIntoWorkingSettings()
@@ -228,7 +227,6 @@ public partial class SettingsForm : Form
         }
 
         UpdateAuthUi();
-        RefreshConnectionPreview();
     }
 
     private void ConnectionField_Changed(object? sender, EventArgs e)
@@ -239,7 +237,6 @@ public partial class SettingsForm : Form
         }
 
         UpdateAuthUi();
-        RefreshConnectionPreview();
     }
 
     private void UpdateAuthUi()
@@ -254,14 +251,5 @@ public partial class SettingsForm : Form
         txtPassword.Enabled = useSqlAuth;
     }
 
-    private void RefreshConnectionPreview()
-    {
-        if (!TryBuildConnectionString(out var connectionString, out _))
-        {
-            txtConnectionPreview.Text = string.Empty;
-            return;
-        }
 
-        txtConnectionPreview.Text = connectionString;
-    }
 }

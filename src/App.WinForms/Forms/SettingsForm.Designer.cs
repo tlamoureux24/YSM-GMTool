@@ -23,8 +23,6 @@ partial class SettingsForm
     private CheckBox chkIntegratedSecurity;
     private CheckBox chkEncrypt;
     private CheckBox chkTrustServerCertificate;
-    private Label lblConnectionPreview;
-    private TextBox txtConnectionPreview;
     private TableLayoutPanel tlpTables;
     private Label lblArcadiaName;
     private TextBox txtArcadiaName;
@@ -87,8 +85,6 @@ partial class SettingsForm
         chkIntegratedSecurity = new CheckBox();
         chkEncrypt = new CheckBox();
         chkTrustServerCertificate = new CheckBox();
-        lblConnectionPreview = new Label();
-        txtConnectionPreview = new TextBox();
         tabTables = new TabPage();
         tlpTables = new TableLayoutPanel();
         lblArcadiaName = new Label();
@@ -189,12 +185,18 @@ partial class SettingsForm
         tlpConnection.Controls.Add(chkIntegratedSecurity, 1, 6);
         tlpConnection.Controls.Add(chkEncrypt, 1, 7);
         tlpConnection.Controls.Add(chkTrustServerCertificate, 1, 8);
-        tlpConnection.Controls.Add(lblConnectionPreview, 0, 9);
-        tlpConnection.Controls.Add(txtConnectionPreview, 1, 9);
+        tlpConnection.Controls.Add(lblArcadiaName, 0, 9);
+        tlpConnection.Controls.Add(txtArcadiaName, 1, 9);
+        tlpConnection.Controls.Add(lblTelecasterName, 0, 10);
+        tlpConnection.Controls.Add(txtTelecasterName, 1, 10);
+        tlpConnection.Controls.Add(lblAuthName, 0, 11);
+        tlpConnection.Controls.Add(txtAuthName, 1, 11);
         tlpConnection.Dock = DockStyle.Fill;
         tlpConnection.Location = new Point(8, 8);
         tlpConnection.Name = "tlpConnection";
-        tlpConnection.RowCount = 10;
+        tlpConnection.RowCount = 12;
+        tlpConnection.RowStyles.Add(new RowStyle());
+        tlpConnection.RowStyles.Add(new RowStyle());
         tlpConnection.RowStyles.Add(new RowStyle());
         tlpConnection.RowStyles.Add(new RowStyle());
         tlpConnection.RowStyles.Add(new RowStyle());
@@ -360,28 +362,7 @@ partial class SettingsForm
         chkTrustServerCertificate.Text = "Trust server certificate";
         chkTrustServerCertificate.UseVisualStyleBackColor = true;
         chkTrustServerCertificate.CheckedChanged += ConnectionField_Changed;
-        // 
-        // lblConnectionPreview
-        // 
-        lblConnectionPreview.Anchor = AnchorStyles.Left;
-        lblConnectionPreview.AutoSize = true;
-        lblConnectionPreview.Location = new Point(3, 401);
-        lblConnectionPreview.Name = "lblConnectionPreview";
-        lblConnectionPreview.Size = new Size(132, 20);
-        lblConnectionPreview.TabIndex = 15;
-        lblConnectionPreview.Text = "Connection preview";
-        // 
-        // txtConnectionPreview
-        // 
-        txtConnectionPreview.Dock = DockStyle.Fill;
-        txtConnectionPreview.Location = new Point(223, 297);
-        txtConnectionPreview.Multiline = true;
-        txtConnectionPreview.Name = "txtConnectionPreview";
-        txtConnectionPreview.ReadOnly = true;
-        txtConnectionPreview.ScrollBars = ScrollBars.Vertical;
-        txtConnectionPreview.Size = new Size(644, 216);
-        txtConnectionPreview.TabIndex = 16;
-        // 
+        //
         // tabTables
         // 
         tabTables.Controls.Add(tlpTables);
@@ -398,37 +379,28 @@ partial class SettingsForm
         tlpTables.ColumnCount = 2;
         tlpTables.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 220F));
         tlpTables.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-        tlpTables.Controls.Add(lblArcadiaName, 0, 0);
-        tlpTables.Controls.Add(txtArcadiaName, 1, 0);
-        tlpTables.Controls.Add(lblTelecasterName, 0, 1);
-        tlpTables.Controls.Add(txtTelecasterName, 1, 1);
-        tlpTables.Controls.Add(lblAuthName, 0, 2);
-        tlpTables.Controls.Add(txtAuthName, 1, 2);
-        tlpTables.Controls.Add(lblCharacterResource, 0, 3);
-        tlpTables.Controls.Add(txtCharacterResource, 1, 3);
-        tlpTables.Controls.Add(lblMonsterResource, 0, 4);
-        tlpTables.Controls.Add(txtMonsterResource, 1, 4);
-        tlpTables.Controls.Add(lblStringResource, 0, 5);
-        tlpTables.Controls.Add(txtStringResource, 1, 5);
-        tlpTables.Controls.Add(lblStringResourceFull, 0, 6);
-        tlpTables.Controls.Add(txtStringResourceFull, 1, 6);
-        tlpTables.Controls.Add(lblItemResource, 0, 7);
-        tlpTables.Controls.Add(txtItemResource, 1, 7);
-        tlpTables.Controls.Add(lblSkillResource, 0, 8);
-        tlpTables.Controls.Add(txtSkillResource, 1, 8);
-        tlpTables.Controls.Add(lblStateResource, 0, 9);
-        tlpTables.Controls.Add(txtStateResource, 1, 9);
-        tlpTables.Controls.Add(lblNpcResource, 0, 10);
-        tlpTables.Controls.Add(txtNpcResource, 1, 10);
-        tlpTables.Controls.Add(lblSummonResource, 0, 11);
-        tlpTables.Controls.Add(txtSummonResource, 1, 11);
+        tlpTables.Controls.Add(lblCharacterResource, 0, 0);
+        tlpTables.Controls.Add(txtCharacterResource, 1, 0);
+        tlpTables.Controls.Add(lblMonsterResource, 0, 1);
+        tlpTables.Controls.Add(txtMonsterResource, 1, 1);
+        tlpTables.Controls.Add(lblStringResource, 0, 2);
+        tlpTables.Controls.Add(txtStringResource, 1, 2);
+        tlpTables.Controls.Add(lblStringResourceFull, 0, 3);
+        tlpTables.Controls.Add(txtStringResourceFull, 1, 3);
+        tlpTables.Controls.Add(lblItemResource, 0, 4);
+        tlpTables.Controls.Add(txtItemResource, 1, 4);
+        tlpTables.Controls.Add(lblSkillResource, 0, 5);
+        tlpTables.Controls.Add(txtSkillResource, 1, 5);
+        tlpTables.Controls.Add(lblStateResource, 0, 6);
+        tlpTables.Controls.Add(txtStateResource, 1, 6);
+        tlpTables.Controls.Add(lblNpcResource, 0, 7);
+        tlpTables.Controls.Add(txtNpcResource, 1, 7);
+        tlpTables.Controls.Add(lblSummonResource, 0, 8);
+        tlpTables.Controls.Add(txtSummonResource, 1, 8);
         tlpTables.Dock = DockStyle.Fill;
         tlpTables.Location = new Point(8, 8);
         tlpTables.Name = "tlpTables";
-        tlpTables.RowCount = 13;
-        tlpTables.RowStyles.Add(new RowStyle());
-        tlpTables.RowStyles.Add(new RowStyle());
-        tlpTables.RowStyles.Add(new RowStyle());
+        tlpTables.RowCount = 10;
         tlpTables.RowStyles.Add(new RowStyle());
         tlpTables.RowStyles.Add(new RowStyle());
         tlpTables.RowStyles.Add(new RowStyle());
@@ -449,16 +421,16 @@ partial class SettingsForm
         lblArcadiaName.Location = new Point(3, 8);
         lblArcadiaName.Name = "lblArcadiaName";
         lblArcadiaName.Size = new Size(96, 20);
-        lblArcadiaName.TabIndex = 0;
+        lblArcadiaName.TabIndex = 15;
         lblArcadiaName.Text = "Arcadia Name";
-        // 
+        //
         // txtArcadiaName
-        // 
+        //
         txtArcadiaName.Dock = DockStyle.Fill;
         txtArcadiaName.Location = new Point(223, 3);
         txtArcadiaName.Name = "txtArcadiaName";
         txtArcadiaName.Size = new Size(644, 27);
-        txtArcadiaName.TabIndex = 1;
+        txtArcadiaName.TabIndex = 16;
         // 
         // lblTelecasterName
         // 
@@ -467,16 +439,16 @@ partial class SettingsForm
         lblTelecasterName.Location = new Point(3, 42);
         lblTelecasterName.Name = "lblTelecasterName";
         lblTelecasterName.Size = new Size(113, 20);
-        lblTelecasterName.TabIndex = 2;
+        lblTelecasterName.TabIndex = 17;
         lblTelecasterName.Text = "Telecaster Name";
-        // 
+        //
         // txtTelecasterName
-        // 
+        //
         txtTelecasterName.Dock = DockStyle.Fill;
         txtTelecasterName.Location = new Point(223, 37);
         txtTelecasterName.Name = "txtTelecasterName";
         txtTelecasterName.Size = new Size(644, 27);
-        txtTelecasterName.TabIndex = 3;
+        txtTelecasterName.TabIndex = 18;
         // 
         // lblAuthName
         // 
@@ -485,16 +457,16 @@ partial class SettingsForm
         lblAuthName.Location = new Point(3, 76);
         lblAuthName.Name = "lblAuthName";
         lblAuthName.Size = new Size(83, 20);
-        lblAuthName.TabIndex = 4;
+        lblAuthName.TabIndex = 19;
         lblAuthName.Text = "Auth Name";
-        // 
+        //
         // txtAuthName
-        // 
+        //
         txtAuthName.Dock = DockStyle.Fill;
         txtAuthName.Location = new Point(223, 71);
         txtAuthName.Name = "txtAuthName";
         txtAuthName.Size = new Size(644, 27);
-        txtAuthName.TabIndex = 5;
+        txtAuthName.TabIndex = 20;
         // 
         // lblCharacterResource
         // 
