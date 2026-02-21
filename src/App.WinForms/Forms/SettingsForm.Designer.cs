@@ -30,14 +30,14 @@ partial class SettingsForm
     private TextBox txtTelecasterName;
     private Label lblAuthName;
     private TextBox txtAuthName;
+    private Label lblAccountsName;
+    private TextBox txtAccountsName;
     private Label lblCharacterResource;
     private TextBox txtCharacterResource;
     private Label lblMonsterResource;
     private TextBox txtMonsterResource;
     private Label lblStringResource;
     private TextBox txtStringResource;
-    private Label lblStringResourceFull;
-    private TextBox txtStringResourceFull;
     private Label lblItemResource;
     private TextBox txtItemResource;
     private Label lblSkillResource;
@@ -93,14 +93,14 @@ partial class SettingsForm
         txtTelecasterName = new TextBox();
         lblAuthName = new Label();
         txtAuthName = new TextBox();
+        lblAccountsName = new Label();
+        txtAccountsName = new TextBox();
         lblCharacterResource = new Label();
         txtCharacterResource = new TextBox();
         lblMonsterResource = new Label();
         txtMonsterResource = new TextBox();
         lblStringResource = new Label();
         txtStringResource = new TextBox();
-        lblStringResourceFull = new Label();
-        txtStringResourceFull = new TextBox();
         lblItemResource = new Label();
         txtItemResource = new TextBox();
         lblSkillResource = new Label();
@@ -191,10 +191,13 @@ partial class SettingsForm
         tlpConnection.Controls.Add(txtTelecasterName, 1, 10);
         tlpConnection.Controls.Add(lblAuthName, 0, 11);
         tlpConnection.Controls.Add(txtAuthName, 1, 11);
+        tlpConnection.Controls.Add(lblAccountsName, 0, 12);
+        tlpConnection.Controls.Add(txtAccountsName, 1, 12);
         tlpConnection.Dock = DockStyle.Fill;
         tlpConnection.Location = new Point(8, 8);
         tlpConnection.Name = "tlpConnection";
-        tlpConnection.RowCount = 12;
+        tlpConnection.RowCount = 13;
+        tlpConnection.RowStyles.Add(new RowStyle());
         tlpConnection.RowStyles.Add(new RowStyle());
         tlpConnection.RowStyles.Add(new RowStyle());
         tlpConnection.RowStyles.Add(new RowStyle());
@@ -385,23 +388,20 @@ partial class SettingsForm
         tlpTables.Controls.Add(txtMonsterResource, 1, 1);
         tlpTables.Controls.Add(lblStringResource, 0, 2);
         tlpTables.Controls.Add(txtStringResource, 1, 2);
-        tlpTables.Controls.Add(lblStringResourceFull, 0, 3);
-        tlpTables.Controls.Add(txtStringResourceFull, 1, 3);
-        tlpTables.Controls.Add(lblItemResource, 0, 4);
-        tlpTables.Controls.Add(txtItemResource, 1, 4);
-        tlpTables.Controls.Add(lblSkillResource, 0, 5);
-        tlpTables.Controls.Add(txtSkillResource, 1, 5);
-        tlpTables.Controls.Add(lblStateResource, 0, 6);
-        tlpTables.Controls.Add(txtStateResource, 1, 6);
-        tlpTables.Controls.Add(lblNpcResource, 0, 7);
-        tlpTables.Controls.Add(txtNpcResource, 1, 7);
-        tlpTables.Controls.Add(lblSummonResource, 0, 8);
-        tlpTables.Controls.Add(txtSummonResource, 1, 8);
+        tlpTables.Controls.Add(lblItemResource, 0, 3);
+        tlpTables.Controls.Add(txtItemResource, 1, 3);
+        tlpTables.Controls.Add(lblSkillResource, 0, 4);
+        tlpTables.Controls.Add(txtSkillResource, 1, 4);
+        tlpTables.Controls.Add(lblStateResource, 0, 5);
+        tlpTables.Controls.Add(txtStateResource, 1, 5);
+        tlpTables.Controls.Add(lblNpcResource, 0, 6);
+        tlpTables.Controls.Add(txtNpcResource, 1, 6);
+        tlpTables.Controls.Add(lblSummonResource, 0, 7);
+        tlpTables.Controls.Add(txtSummonResource, 1, 7);
         tlpTables.Dock = DockStyle.Fill;
         tlpTables.Location = new Point(8, 8);
         tlpTables.Name = "tlpTables";
-        tlpTables.RowCount = 10;
-        tlpTables.RowStyles.Add(new RowStyle());
+        tlpTables.RowCount = 9;
         tlpTables.RowStyles.Add(new RowStyle());
         tlpTables.RowStyles.Add(new RowStyle());
         tlpTables.RowStyles.Add(new RowStyle());
@@ -467,7 +467,25 @@ partial class SettingsForm
         txtAuthName.Name = "txtAuthName";
         txtAuthName.Size = new Size(644, 27);
         txtAuthName.TabIndex = 20;
-        // 
+        //
+        // lblAccountsName
+        //
+        lblAccountsName.Anchor = AnchorStyles.Left;
+        lblAccountsName.AutoSize = true;
+        lblAccountsName.Location = new Point(3, 110);
+        lblAccountsName.Name = "lblAccountsName";
+        lblAccountsName.Size = new Size(97, 20);
+        lblAccountsName.TabIndex = 21;
+        lblAccountsName.Text = "Accounts Name";
+        //
+        // txtAccountsName
+        //
+        txtAccountsName.Dock = DockStyle.Fill;
+        txtAccountsName.Location = new Point(223, 105);
+        txtAccountsName.Name = "txtAccountsName";
+        txtAccountsName.Size = new Size(644, 27);
+        txtAccountsName.TabIndex = 22;
+        //
         // lblCharacterResource
         // 
         lblCharacterResource.Anchor = AnchorStyles.Left;
@@ -521,25 +539,7 @@ partial class SettingsForm
         txtStringResource.Name = "txtStringResource";
         txtStringResource.Size = new Size(644, 27);
         txtStringResource.TabIndex = 11;
-        // 
-        // lblStringResourceFull
-        // 
-        lblStringResourceFull.Anchor = AnchorStyles.Left;
-        lblStringResourceFull.AutoSize = true;
-        lblStringResourceFull.Location = new Point(3, 212);
-        lblStringResourceFull.Name = "lblStringResourceFull";
-        lblStringResourceFull.Size = new Size(138, 20);
-        lblStringResourceFull.TabIndex = 12;
-        lblStringResourceFull.Text = "StringResourceFull";
-        // 
-        // txtStringResourceFull
-        // 
-        txtStringResourceFull.Dock = DockStyle.Fill;
-        txtStringResourceFull.Location = new Point(223, 207);
-        txtStringResourceFull.Name = "txtStringResourceFull";
-        txtStringResourceFull.Size = new Size(644, 27);
-        txtStringResourceFull.TabIndex = 13;
-        // 
+        //
         // lblItemResource
         // 
         lblItemResource.Anchor = AnchorStyles.Left;

@@ -56,10 +56,10 @@ public partial class SettingsForm : Form
         txtArcadiaName.Text = _workingSettings.TableNames.ArcadiaName;
         txtTelecasterName.Text = _workingSettings.TableNames.TelecasterName;
         txtAuthName.Text = _workingSettings.TableNames.AuthName;
+        txtAccountsName.Text = _workingSettings.TableNames.AccountsName;
         txtCharacterResource.Text = _workingSettings.TableNames.CharacterResource;
         txtMonsterResource.Text = _workingSettings.TableNames.MonsterResource;
         txtStringResource.Text = _workingSettings.TableNames.StringResource;
-        txtStringResourceFull.Text = _workingSettings.TableNames.StringResourceFull;
         txtItemResource.Text = _workingSettings.TableNames.ItemResource;
         txtSkillResource.Text = _workingSettings.TableNames.SkillResource;
         txtStateResource.Text = _workingSettings.TableNames.StateResource;
@@ -89,10 +89,10 @@ public partial class SettingsForm : Form
         _workingSettings.TableNames.ArcadiaName = txtArcadiaName.Text.Trim();
         _workingSettings.TableNames.TelecasterName = txtTelecasterName.Text.Trim();
         _workingSettings.TableNames.AuthName = txtAuthName.Text.Trim();
+        _workingSettings.TableNames.AccountsName = txtAccountsName.Text.Trim();
         _workingSettings.TableNames.CharacterResource = txtCharacterResource.Text.Trim();
         _workingSettings.TableNames.MonsterResource = txtMonsterResource.Text.Trim();
         _workingSettings.TableNames.StringResource = txtStringResource.Text.Trim();
-        _workingSettings.TableNames.StringResourceFull = txtStringResourceFull.Text.Trim();
         _workingSettings.TableNames.ItemResource = txtItemResource.Text.Trim();
         _workingSettings.TableNames.SkillResource = txtSkillResource.Text.Trim();
         _workingSettings.TableNames.StateResource = txtStateResource.Text.Trim();

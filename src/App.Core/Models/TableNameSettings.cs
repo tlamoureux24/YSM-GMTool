@@ -8,13 +8,13 @@ public sealed class TableNameSettings
 
     public string AuthName { get; set; } = "Auth";
 
+    public string AccountsName { get; set; } = "Accounts";
+
     public string CharacterResource { get; set; } = "CharacterResource";
 
     public string MonsterResource { get; set; } = "MonsterResource";
 
     public string StringResource { get; set; } = "StringResource";
-
-    public string StringResourceFull { get; set; } = "StringResourceFull";
 
     public string ItemResource { get; set; } = "ItemResource";
 
@@ -33,10 +33,10 @@ public sealed class TableNameSettings
             [nameof(ArcadiaName)] = ArcadiaName,
             [nameof(TelecasterName)] = TelecasterName,
             [nameof(AuthName)] = AuthName,
+            [nameof(AccountsName)] = AccountsName,
             [nameof(CharacterResource)] = CharacterResource,
             [nameof(MonsterResource)] = MonsterResource,
             [nameof(StringResource)] = StringResource,
-            [nameof(StringResourceFull)] = StringResourceFull,
             [nameof(ItemResource)] = ItemResource,
             [nameof(SkillResource)] = SkillResource,
             [nameof(StateResource)] = StateResource,
@@ -57,10 +57,10 @@ public sealed class TableNameSettings
         ArcadiaName = ArcadiaName,
         TelecasterName = TelecasterName,
         AuthName = AuthName,
+        AccountsName = AccountsName,
         CharacterResource = CharacterResource,
         MonsterResource = MonsterResource,
         StringResource = StringResource,
-        StringResourceFull = StringResourceFull,
         ItemResource = ItemResource,
         SkillResource = SkillResource,
         StateResource = StateResource,
