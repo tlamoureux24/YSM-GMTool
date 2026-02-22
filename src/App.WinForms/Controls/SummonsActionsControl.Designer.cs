@@ -67,7 +67,7 @@ partial class SummonsActionsControl
         gbSummonActions.Dock = DockStyle.Fill;
         gbSummonActions.Location = new Point(0, 0);
         gbSummonActions.Name = "gbSummonActions";
-        gbSummonActions.Size = new Size(430, 320);
+        gbSummonActions.Size = new Size(430, 260);
         gbSummonActions.TabIndex = 0;
         gbSummonActions.TabStop = false;
         gbSummonActions.Text = "Summon Commands";
@@ -84,7 +84,7 @@ partial class SummonsActionsControl
         tlpRoot.RowCount = 2;
         tlpRoot.RowStyles.Add(new RowStyle());
         tlpRoot.RowStyles.Add(new RowStyle());
-        tlpRoot.Size = new Size(424, 294);
+        tlpRoot.Size = new Size(424, 234);
         tlpRoot.TabIndex = 0;
         // 
         // gbAddSummon
@@ -93,7 +93,7 @@ partial class SummonsActionsControl
         gbAddSummon.Dock = DockStyle.Fill;
         gbAddSummon.Location = new Point(3, 3);
         gbAddSummon.Name = "gbAddSummon";
-        gbAddSummon.Size = new Size(418, 114);
+        gbAddSummon.Size = new Size(418, 104);
         gbAddSummon.TabIndex = 0;
         gbAddSummon.TabStop = false;
         gbAddSummon.Text = "Add Summon";
@@ -117,7 +117,7 @@ partial class SummonsActionsControl
         tlpAdd.RowCount = 2;
         tlpAdd.RowStyles.Add(new RowStyle());
         tlpAdd.RowStyles.Add(new RowStyle());
-        tlpAdd.Size = new Size(412, 88);
+        tlpAdd.Size = new Size(412, 78);
         tlpAdd.TabIndex = 0;
         // 
         // lblSummonId
@@ -189,7 +189,7 @@ partial class SummonsActionsControl
         gbStageSummon.Dock = DockStyle.Fill;
         gbStageSummon.Location = new Point(3, 123);
         gbStageSummon.Name = "gbStageSummon";
-        gbStageSummon.Size = new Size(418, 168);
+        gbStageSummon.Size = new Size(418, 136);
         gbStageSummon.TabIndex = 1;
         gbStageSummon.TabStop = false;
         gbStageSummon.Text = "Stage Summon";
@@ -211,7 +211,7 @@ partial class SummonsActionsControl
         tlpStage.RowStyles.Add(new RowStyle());
         tlpStage.RowStyles.Add(new RowStyle());
         tlpStage.RowStyles.Add(new RowStyle());
-        tlpStage.Size = new Size(412, 142);
+        tlpStage.Size = new Size(412, 110);
         tlpStage.TabIndex = 0;
         // 
         // lblSlot
@@ -273,9 +273,7 @@ partial class SummonsActionsControl
         Controls.Add(gbSummonActions);
         MinimumSize = new Size(430, 0);
         Name = "SummonsActionsControl";
-        Size = new Size(430, 320);
-        AutoSize = true;
-        AutoSizeMode = AutoSizeMode.GrowAndShrink;
+        Size = new Size(430, 260);
         gbSummonActions.ResumeLayout(false);
         tlpRoot.ResumeLayout(false);
         gbAddSummon.ResumeLayout(false);

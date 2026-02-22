@@ -110,7 +110,7 @@ partial class EntityBrowserControl
         gbSearch.Dock = DockStyle.Fill;
         gbSearch.Location = new Point(3, 3);
         gbSearch.Name = "gbSearch";
-        gbSearch.Size = new Size(470, 140);
+        gbSearch.Size = new Size(470, 135);
         gbSearch.TabIndex = 0;
         gbSearch.TabStop = false;
         gbSearch.Text = "Search Actions";

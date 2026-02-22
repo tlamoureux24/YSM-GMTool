@@ -220,28 +220,37 @@ public partial class MainForm : Form
 
     private static void AddActionControl(EntityBrowserControl browser, Control control)
     {
-        control.Dock = DockStyle.None;
-        control.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+        control.Dock = DockStyle.Top;
         browser.ActionsHostPanel.Controls.Add(control);
 
-        ApplyActionControlWidth(browser.ActionsHostPanel, control);
-        browser.ActionsHostPanel.Resize += (_, _) => ApplyActionControlWidth(browser.ActionsHostPanel, control);
+        ResizeActionControlHeight(control);
+        control.Layout += (_, _) => ResizeActionControlHeight(control);
     }
 
-    private static void ApplyActionControlWidth(Control host, Control control)
+    private static void ResizeActionControlHeight(Control control)
     {
-        if (control.IsDisposed || host.ClientSize.Width <= 0)
+        if (control.IsDisposed)
         {
             return;
         }
 
-        // 97% of parent width, centered
-        var targetWidth = (int)(host.ClientSize.Width * 0.97);
-        targetWidth = Math.Max(120, targetWidth);
-        int leftPad = (host.ClientSize.Width - targetWidth) / 2;
+        var preferred = control.GetPreferredSize(new Size(control.Width, 0)).Height;
+        var measured = MeasureRequiredHeight(control);
+        var minH = control.MinimumSize.Height;
+        control.Height = Math.Max(minH, Math.Max(preferred, measured));
+    }
 
-        control.Location = new Point(leftPad, control.Location.Y);
-        control.Width = targetWidth;
+    private static int MeasureRequiredHeight(Control control)
+    {
+        var bottom = control.Padding.Top;
+        foreach (Control child in control.Controls)
+        {
+            var childH = MeasureRequiredHeight(child);
+            var childBottom = child.Top + Math.Max(child.Height, childH) + child.Margin.Bottom;
+            bottom = Math.Max(bottom, childBottom);
+        }
+
+        return Math.Max(control.MinimumSize.Height, bottom + control.Padding.Bottom);
     }
 
     private void ConfigureBrowserColumns()

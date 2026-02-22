@@ -86,7 +86,7 @@ partial class BuffsActionsControl
         gbBuffActions.Dock = DockStyle.Fill;
         gbBuffActions.Location = new Point(0, 0);
         gbBuffActions.Name = "gbBuffActions";
-        gbBuffActions.Size = new Size(430, 350);
+        gbBuffActions.Size = new Size(430, 330);
         gbBuffActions.TabIndex = 0;
         gbBuffActions.TabStop = false;
         gbBuffActions.Text = "Buffs";
@@ -104,7 +104,7 @@ partial class BuffsActionsControl
         tlpRoot.RowStyles.Add(new RowStyle());
         tlpRoot.RowStyles.Add(new RowStyle());
         tlpRoot.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-        tlpRoot.Size = new Size(424, 324);
+        tlpRoot.Size = new Size(424, 304);
         tlpRoot.TabIndex = 0;
         // 
         // gbSelected
@@ -248,7 +248,7 @@ partial class BuffsActionsControl
         tlpBottom.Name = "tlpBottom";
         tlpBottom.RowCount = 1;
         tlpBottom.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-        tlpBottom.Size = new Size(418, 166);
+        tlpBottom.Size = new Size(418, 176);
         tlpBottom.TabIndex = 1;
         // 
         // gbGlobalBuffs
@@ -257,7 +257,7 @@ partial class BuffsActionsControl
         gbGlobalBuffs.Dock = DockStyle.Fill;
         gbGlobalBuffs.Location = new Point(3, 3);
         gbGlobalBuffs.Name = "gbGlobalBuffs";
-        gbGlobalBuffs.Size = new Size(203, 160);
+        gbGlobalBuffs.Size = new Size(203, 170);
         gbGlobalBuffs.TabIndex = 0;
         gbGlobalBuffs.TabStop = false;
         gbGlobalBuffs.Text = "Global Buffs";
@@ -271,7 +271,7 @@ partial class BuffsActionsControl
         flpGlobalButtons.FlowDirection = FlowDirection.TopDown;
         flpGlobalButtons.Location = new Point(3, 23);
         flpGlobalButtons.Name = "flpGlobalButtons";
-        flpGlobalButtons.Size = new Size(197, 134);
+        flpGlobalButtons.Size = new Size(197, 144);
         flpGlobalButtons.TabIndex = 0;
         flpGlobalButtons.WrapContents = false;
         // 
@@ -311,7 +311,7 @@ partial class BuffsActionsControl
         gbPlayerCreature.Dock = DockStyle.Fill;
         gbPlayerCreature.Location = new Point(212, 3);
         gbPlayerCreature.Name = "gbPlayerCreature";
-        gbPlayerCreature.Size = new Size(203, 160);
+        gbPlayerCreature.Size = new Size(203, 170);
         gbPlayerCreature.TabIndex = 1;
         gbPlayerCreature.TabStop = false;
         gbPlayerCreature.Text = "Player/Creature Buffs";
@@ -333,7 +333,7 @@ partial class BuffsActionsControl
         tlpPlayerCreature.RowStyles.Add(new RowStyle());
         tlpPlayerCreature.RowStyles.Add(new RowStyle());
         tlpPlayerCreature.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-        tlpPlayerCreature.Size = new Size(197, 134);
+        tlpPlayerCreature.Size = new Size(197, 144);
         tlpPlayerCreature.TabIndex = 0;
         // 
         // rbPlayer
@@ -386,9 +386,7 @@ partial class BuffsActionsControl
         AutoScaleMode = AutoScaleMode.Font;
         Controls.Add(gbBuffActions);
         Name = "BuffsActionsControl";
-        Size = new Size(430, 350);
-        AutoSize = true;
-        AutoSizeMode = AutoSizeMode.GrowAndShrink;
+        Size = new Size(430, 330);
         gbBuffActions.ResumeLayout(false);
         tlpRoot.ResumeLayout(false);
         gbSelected.ResumeLayout(false);

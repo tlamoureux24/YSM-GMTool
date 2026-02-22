@@ -75,7 +75,7 @@ partial class SkillsActionsControl
         gbSkillsActions.Dock = DockStyle.Fill;
         gbSkillsActions.Location = new Point(0, 0);
         gbSkillsActions.Name = "gbSkillsActions";
-        gbSkillsActions.Size = new Size(430, 426);
+        gbSkillsActions.Size = new Size(430, 390);
         gbSkillsActions.TabIndex = 0;
         gbSkillsActions.TabStop = false;
         gbSkillsActions.Text = "Skills";
@@ -95,7 +95,7 @@ partial class SkillsActionsControl
         tlpRoot.RowStyles.Add(new RowStyle());
         tlpRoot.RowStyles.Add(new RowStyle());
         tlpRoot.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-        tlpRoot.Size = new Size(424, 400);
+        tlpRoot.Size = new Size(424, 364);
         tlpRoot.TabIndex = 0;
         // 
         // gbSelected
@@ -104,7 +104,7 @@ partial class SkillsActionsControl
         gbSelected.Dock = DockStyle.Top;
         gbSelected.Location = new Point(3, 3);
         gbSelected.Name = "gbSelected";
-        gbSelected.Size = new Size(418, 83);
+        gbSelected.Size = new Size(418, 62);
         gbSelected.TabIndex = 0;
         gbSelected.TabStop = false;
         gbSelected.Text = "Selected";
@@ -125,7 +125,7 @@ partial class SkillsActionsControl
         tlpSelected.Name = "tlpSelected";
         tlpSelected.RowCount = 1;
         tlpSelected.RowStyles.Add(new RowStyle());
-        tlpSelected.Size = new Size(412, 57);
+        tlpSelected.Size = new Size(412, 36);
         tlpSelected.TabIndex = 0;
         // 
         // lblSkillId
@@ -176,7 +176,7 @@ partial class SkillsActionsControl
         gbPlayerSkills.Dock = DockStyle.Top;
         gbPlayerSkills.Location = new Point(3, 92);
         gbPlayerSkills.Name = "gbPlayerSkills";
-        gbPlayerSkills.Size = new Size(418, 135);
+        gbPlayerSkills.Size = new Size(418, 105);
         gbPlayerSkills.TabIndex = 1;
         gbPlayerSkills.TabStop = false;
         gbPlayerSkills.Text = "Player Skills";
@@ -190,7 +190,7 @@ partial class SkillsActionsControl
         flpPlayerSkills.Dock = DockStyle.Fill;
         flpPlayerSkills.Location = new Point(3, 23);
         flpPlayerSkills.Name = "flpPlayerSkills";
-        flpPlayerSkills.Size = new Size(412, 109);
+        flpPlayerSkills.Size = new Size(412, 79);
         flpPlayerSkills.TabIndex = 0;
         // 
         // btnLearnSkill
@@ -239,7 +239,7 @@ partial class SkillsActionsControl
         gbCreatureSkills.Dock = DockStyle.Top;
         gbCreatureSkills.Location = new Point(3, 233);
         gbCreatureSkills.Name = "gbCreatureSkills";
-        gbCreatureSkills.Size = new Size(418, 145);
+        gbCreatureSkills.Size = new Size(418, 140);
         gbCreatureSkills.TabIndex = 2;
         gbCreatureSkills.TabStop = false;
         gbCreatureSkills.Text = "Creature Skills";
@@ -260,7 +260,7 @@ partial class SkillsActionsControl
         tlpCreature.RowStyles.Add(new RowStyle());
         tlpCreature.RowStyles.Add(new RowStyle());
         tlpCreature.RowStyles.Add(new RowStyle());
-        tlpCreature.Size = new Size(412, 119);
+        tlpCreature.Size = new Size(412, 104);
         tlpCreature.TabIndex = 0;
         // 
         // lblCreatureSlotIndex
@@ -312,9 +312,7 @@ partial class SkillsActionsControl
         AutoScaleMode = AutoScaleMode.Font;
         Controls.Add(gbSkillsActions);
         Name = "SkillsActionsControl";
-        Size = new Size(430, 426);
-        AutoSize = true;
-        AutoSizeMode = AutoSizeMode.GrowAndShrink;
+        Size = new Size(430, 390);
         gbSkillsActions.ResumeLayout(false);
         tlpRoot.ResumeLayout(false);
         gbSelected.ResumeLayout(false);

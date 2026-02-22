@@ -46,7 +46,7 @@ partial class PlayerCheckerActionsControl
         gbPlayerChecker.Dock = DockStyle.Fill;
         gbPlayerChecker.Location = new Point(0, 0);
         gbPlayerChecker.Name = "gbPlayerChecker";
-        gbPlayerChecker.Size = new Size(360, 120);
+        gbPlayerChecker.Size = new Size(360, 70);
         gbPlayerChecker.TabIndex = 0;
         gbPlayerChecker.TabStop = false;
         gbPlayerChecker.Text = "Playerchecker Actions";
@@ -63,7 +63,7 @@ partial class PlayerCheckerActionsControl
         tlp.RowCount = 2;
         tlp.RowStyles.Add(new RowStyle());
         tlp.RowStyles.Add(new RowStyle());
-        tlp.Size = new Size(354, 94);
+        tlp.Size = new Size(354, 90);
         tlp.TabIndex = 0;
         //
         // tlpLoadButtons
@@ -159,9 +159,7 @@ partial class PlayerCheckerActionsControl
         AutoScaleMode = AutoScaleMode.Font;
         Controls.Add(gbPlayerChecker);
         Name = "PlayerCheckerActionsControl";
-        Size = new Size(360, 120);
-        AutoSize = true;
-        AutoSizeMode = AutoSizeMode.GrowAndShrink;
+        Size = new Size(360, 116);
         gbPlayerChecker.ResumeLayout(false);
         tlp.ResumeLayout(false);
         tlp.PerformLayout();

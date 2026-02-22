@@ -287,8 +287,6 @@ partial class MonsterActionsControl
         Controls.Add(gbMonsterActions);
         Name = "MonsterActionsControl";
         Size = new Size(430, 370);
-        AutoSize = true;
-        AutoSizeMode = AutoSizeMode.GrowAndShrink;
         gbMonsterActions.ResumeLayout(false);
         tlp.ResumeLayout(false);
         tlp.PerformLayout();

@@ -78,7 +78,7 @@ partial class NpcsActionsControl
         gbNpcActions.Dock = DockStyle.Fill;
         gbNpcActions.Location = new Point(0, 0);
         gbNpcActions.Name = "gbNpcActions";
-        gbNpcActions.Size = new Size(580, 430);
+        gbNpcActions.Size = new Size(580, 360);
         gbNpcActions.TabIndex = 0;
         gbNpcActions.TabStop = false;
         gbNpcActions.Text = "NPC Commands";
@@ -95,7 +95,7 @@ partial class NpcsActionsControl
         tlpRoot.RowCount = 2;
         tlpRoot.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
         tlpRoot.RowStyles.Add(new RowStyle());
-        tlpRoot.Size = new Size(574, 404);
+        tlpRoot.Size = new Size(574, 334);
         tlpRoot.TabIndex = 0;
         // 
         // gbSelectedNpc
@@ -104,7 +104,7 @@ partial class NpcsActionsControl
         gbSelectedNpc.Dock = DockStyle.Fill;
         gbSelectedNpc.Location = new Point(3, 3);
         gbSelectedNpc.Name = "gbSelectedNpc";
-        gbSelectedNpc.Size = new Size(568, 194);
+        gbSelectedNpc.Size = new Size(568, 256);
         gbSelectedNpc.TabIndex = 0;
         gbSelectedNpc.TabStop = false;
         gbSelectedNpc.Text = "Selected NPC";
@@ -138,7 +138,7 @@ partial class NpcsActionsControl
         tlpSelected.RowStyles.Add(new RowStyle());
         tlpSelected.RowStyles.Add(new RowStyle());
         tlpSelected.RowStyles.Add(new RowStyle());
-        tlpSelected.Size = new Size(562, 168);
+        tlpSelected.Size = new Size(562, 230);
         tlpSelected.TabIndex = 0;
         // 
         // lblNpcId
@@ -274,7 +274,7 @@ partial class NpcsActionsControl
         gbCommands.Dock = DockStyle.Fill;
         gbCommands.Location = new Point(3, 203);
         gbCommands.Name = "gbCommands";
-        gbCommands.Size = new Size(568, 62);
+        gbCommands.Size = new Size(568, 68);
         gbCommands.TabIndex = 1;
         gbCommands.TabStop = false;
         gbCommands.Text = "Actions";
@@ -293,7 +293,7 @@ partial class NpcsActionsControl
         tlpCommands.Name = "tlpCommands";
         tlpCommands.RowCount = 1;
         tlpCommands.RowStyles.Add(new RowStyle());
-        tlpCommands.Size = new Size(562, 40);
+        tlpCommands.Size = new Size(562, 42);
         tlpCommands.TabIndex = 0;
         // 
         // btnAddNpcToWorld
@@ -334,11 +334,9 @@ partial class NpcsActionsControl
         AutoScaleDimensions = new SizeF(8F, 20F);
         AutoScaleMode = AutoScaleMode.Font;
         Controls.Add(gbNpcActions);
-        MinimumSize = new Size(400, 0);
+        MinimumSize = new Size(400, 360);
         Name = "NpcsActionsControl";
-        Size = new Size(580, 380);
-        AutoSize = true;
-        AutoSizeMode = AutoSizeMode.GrowAndShrink;
+        Size = new Size(580, 360);
         gbNpcActions.ResumeLayout(false);
         tlpRoot.ResumeLayout(false);
         gbSelectedNpc.ResumeLayout(false);

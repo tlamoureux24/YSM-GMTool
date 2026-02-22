@@ -605,8 +605,6 @@ partial class ItemsActionsControl
         Controls.Add(gbItemActions);
         Name = "ItemsActionsControl";
         Size = new Size(460, 560);
-        AutoSize = true;
-        AutoSizeMode = AutoSizeMode.GrowAndShrink;
         gbItemActions.ResumeLayout(false);
         tabItemsActions.ResumeLayout(false);
         tabItem.ResumeLayout(false);
