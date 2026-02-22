@@ -75,7 +75,7 @@ partial class SkillsActionsControl
         gbSkillsActions.Dock = DockStyle.Fill;
         gbSkillsActions.Location = new Point(0, 0);
         gbSkillsActions.Name = "gbSkillsActions";
-        gbSkillsActions.Size = new Size(430, 390);
+        gbSkillsActions.Size = new Size(430, 426);
         gbSkillsActions.TabIndex = 0;
         gbSkillsActions.TabStop = false;
         gbSkillsActions.Text = "Skills";
@@ -95,7 +95,7 @@ partial class SkillsActionsControl
         tlpRoot.RowStyles.Add(new RowStyle());
         tlpRoot.RowStyles.Add(new RowStyle());
         tlpRoot.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-        tlpRoot.Size = new Size(424, 364);
+        tlpRoot.Size = new Size(424, 400);
         tlpRoot.TabIndex = 0;
         // 
         // gbSelected
@@ -232,20 +232,20 @@ partial class SkillsActionsControl
         btnLearnAllJobSkills.Text = "Learn all skill";
         btnLearnAllJobSkills.UseVisualStyleBackColor = true;
         btnLearnAllJobSkills.Click += btnLearnAllJobSkills_Click;
-        // 
+        //
         // gbCreatureSkills
-        // 
+        //
         gbCreatureSkills.Controls.Add(tlpCreature);
         gbCreatureSkills.Dock = DockStyle.Top;
         gbCreatureSkills.Location = new Point(3, 233);
         gbCreatureSkills.Name = "gbCreatureSkills";
-        gbCreatureSkills.Size = new Size(418, 109);
+        gbCreatureSkills.Size = new Size(418, 145);
         gbCreatureSkills.TabIndex = 2;
         gbCreatureSkills.TabStop = false;
         gbCreatureSkills.Text = "Creature Skills";
-        // 
+        //
         // tlpCreature
-        // 
+        //
         tlpCreature.ColumnCount = 2;
         tlpCreature.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         tlpCreature.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -260,7 +260,7 @@ partial class SkillsActionsControl
         tlpCreature.RowStyles.Add(new RowStyle());
         tlpCreature.RowStyles.Add(new RowStyle());
         tlpCreature.RowStyles.Add(new RowStyle());
-        tlpCreature.Size = new Size(412, 83);
+        tlpCreature.Size = new Size(412, 119);
         tlpCreature.TabIndex = 0;
         // 
         // lblCreatureSlotIndex
@@ -312,7 +312,7 @@ partial class SkillsActionsControl
         AutoScaleMode = AutoScaleMode.Font;
         Controls.Add(gbSkillsActions);
         Name = "SkillsActionsControl";
-        Size = new Size(430, 390);
+        Size = new Size(430, 426);
         gbSkillsActions.ResumeLayout(false);
         tlpRoot.ResumeLayout(false);
         gbSelected.ResumeLayout(false);

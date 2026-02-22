@@ -56,6 +56,10 @@ partial class SettingsForm
     private TabPage tabGeneral;
     private TableLayoutPanel tlpGeneral;
     private CheckBox chkLimitSelectQueries;
+    private CheckBox chkUseLocalCache;
+    private TableLayoutPanel tlpCacheRow;
+    private Button btnExportCache;
+    private Label lblCacheStatus;
 
     protected override void Dispose(bool disposing)
     {
@@ -91,6 +95,10 @@ partial class SettingsForm
         tabGeneral = new TabPage();
         tlpGeneral = new TableLayoutPanel();
         chkLimitSelectQueries = new CheckBox();
+        chkUseLocalCache = new CheckBox();
+        tlpCacheRow = new TableLayoutPanel();
+        btnExportCache = new Button();
+        lblCacheStatus = new Label();
         tabTables = new TabPage();
         tlpTables = new TableLayoutPanel();
         lblArcadiaName = new Label();
@@ -130,6 +138,7 @@ partial class SettingsForm
         tabTables.SuspendLayout();
         tabGeneral.SuspendLayout();
         tlpGeneral.SuspendLayout();
+        tlpCacheRow.SuspendLayout();
         tlpTables.SuspendLayout();
         flpButtons.SuspendLayout();
         SuspendLayout();
@@ -396,21 +405,25 @@ partial class SettingsForm
         tabGeneral.UseVisualStyleBackColor = true;
         // 
         // tlpGeneral
-        // 
+        //
         tlpGeneral.ColumnCount = 1;
         tlpGeneral.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
         tlpGeneral.Controls.Add(chkLimitSelectQueries, 0, 0);
+        tlpGeneral.Controls.Add(chkUseLocalCache, 0, 1);
+        tlpGeneral.Controls.Add(tlpCacheRow, 0, 2);
         tlpGeneral.Dock = DockStyle.Fill;
         tlpGeneral.Location = new Point(8, 8);
         tlpGeneral.Name = "tlpGeneral";
-        tlpGeneral.RowCount = 2;
+        tlpGeneral.RowCount = 4;
+        tlpGeneral.RowStyles.Add(new RowStyle());
+        tlpGeneral.RowStyles.Add(new RowStyle());
         tlpGeneral.RowStyles.Add(new RowStyle());
         tlpGeneral.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
         tlpGeneral.Size = new Size(870, 516);
         tlpGeneral.TabIndex = 0;
-        // 
+        //
         // chkLimitSelectQueries
-        // 
+        //
         chkLimitSelectQueries.AutoSize = true;
         chkLimitSelectQueries.Location = new Point(3, 8);
         chkLimitSelectQueries.Name = "chkLimitSelectQueries";
@@ -419,6 +432,53 @@ partial class SettingsForm
         chkLimitSelectQueries.Text = "Limit Select queries to 1000 items";
         chkLimitSelectQueries.UseVisualStyleBackColor = true;
         chkLimitSelectQueries.CheckedChanged += ConnectionField_Changed;
+        //
+        // chkUseLocalCache
+        //
+        chkUseLocalCache.AutoSize = true;
+        chkUseLocalCache.Location = new Point(3, 35);
+        chkUseLocalCache.Name = "chkUseLocalCache";
+        chkUseLocalCache.Size = new Size(260, 24);
+        chkUseLocalCache.TabIndex = 1;
+        chkUseLocalCache.Text = "Use local cache (offline mode)";
+        chkUseLocalCache.UseVisualStyleBackColor = true;
+        chkUseLocalCache.CheckedChanged += ConnectionField_Changed;
+        //
+        // tlpCacheRow
+        //
+        tlpCacheRow.ColumnCount = 2;
+        tlpCacheRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180F));
+        tlpCacheRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+        tlpCacheRow.Controls.Add(btnExportCache, 0, 0);
+        tlpCacheRow.Controls.Add(lblCacheStatus, 1, 0);
+        tlpCacheRow.Dock = DockStyle.Fill;
+        tlpCacheRow.Location = new Point(3, 65);
+        tlpCacheRow.Name = "tlpCacheRow";
+        tlpCacheRow.RowCount = 1;
+        tlpCacheRow.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        tlpCacheRow.Size = new Size(864, 35);
+        tlpCacheRow.TabIndex = 2;
+        //
+        // btnExportCache
+        //
+        btnExportCache.Dock = DockStyle.Fill;
+        btnExportCache.Location = new Point(3, 3);
+        btnExportCache.Name = "btnExportCache";
+        btnExportCache.Size = new Size(174, 29);
+        btnExportCache.TabIndex = 0;
+        btnExportCache.Text = "Export to local cache";
+        btnExportCache.UseVisualStyleBackColor = true;
+        btnExportCache.Click += btnExportCache_Click;
+        //
+        // lblCacheStatus
+        //
+        lblCacheStatus.Anchor = AnchorStyles.Left;
+        lblCacheStatus.AutoSize = true;
+        lblCacheStatus.Location = new Point(186, 10);
+        lblCacheStatus.Name = "lblCacheStatus";
+        lblCacheStatus.Size = new Size(100, 20);
+        lblCacheStatus.TabIndex = 1;
+        lblCacheStatus.Text = "No cache found.";
         // 
         // tlpTables
         // 
@@ -699,9 +759,9 @@ partial class SettingsForm
         flpButtons.Name = "flpButtons";
         flpButtons.Size = new Size(343, 35);
         flpButtons.TabIndex = 2;
-        // 
+        //
         // btnTestConnection
-        // 
+        //
         btnTestConnection.Location = new Point(237, 3);
         btnTestConnection.Name = "btnTestConnection";
         btnTestConnection.Size = new Size(100, 29);
@@ -709,9 +769,9 @@ partial class SettingsForm
         btnTestConnection.Text = "Test";
         btnTestConnection.UseVisualStyleBackColor = true;
         btnTestConnection.Click += btnTestConnection_Click;
-        // 
+        //
         // btnSave
-        // 
+        //
         btnSave.Location = new Point(131, 3);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(100, 29);
@@ -719,9 +779,9 @@ partial class SettingsForm
         btnSave.Text = "Save";
         btnSave.UseVisualStyleBackColor = true;
         btnSave.Click += btnSave_Click;
-        // 
+        //
         // btnCancel
-        // 
+        //
         btnCancel.Location = new Point(25, 3);
         btnCancel.Name = "btnCancel";
         btnCancel.Size = new Size(100, 29);
@@ -753,6 +813,8 @@ partial class SettingsForm
         tabGeneral.ResumeLayout(false);
         tlpGeneral.ResumeLayout(false);
         tlpGeneral.PerformLayout();
+        tlpCacheRow.ResumeLayout(false);
+        tlpCacheRow.PerformLayout();
         tlpTables.ResumeLayout(false);
         tlpTables.PerformLayout();
         flpButtons.ResumeLayout(false);

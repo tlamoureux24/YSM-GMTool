@@ -5,6 +5,8 @@ public enum QueryEntity
     Playerchecker,
     PlayercheckerByCharName,
     PlayercheckerByAccount,
+    PlayercheckerAll,
+    PlayercheckerOnline,
     PlayerInventory,
     PlayerWarehouse,
     Monsters,

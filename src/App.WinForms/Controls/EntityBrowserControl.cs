@@ -7,7 +7,9 @@ namespace App.WinForms.Controls;
 
 public partial class EntityBrowserControl : UserControl
 {
-    private IReadOnlyList<BrowserRow> _rows = [];
+    private List<BrowserRow> _rows = [];
+    private int _sortColumnIndex = -1;
+    private SortOrder _sortOrder = SortOrder.None;
     private CancellationTokenSource? _debounceCts;
     private bool _splitterInitialized;
     private bool _splitterUserAdjusted;
@@ -112,7 +114,7 @@ public partial class EntityBrowserControl : UserControl
                 HeaderText = column.HeaderText,
                 Width = column.Width,
                 ReadOnly = true,
-                SortMode = DataGridViewColumnSortMode.NotSortable,
+                SortMode = DataGridViewColumnSortMode.Programmatic,
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 FillWeight = fillWeight,
                 MinimumWidth = minimumWidth
@@ -126,7 +128,14 @@ public partial class EntityBrowserControl : UserControl
 
     public void SetRows(IReadOnlyList<BrowserRow> rows)
     {
-        _rows = rows;
+        _rows = rows.ToList();
+        _sortColumnIndex = -1;
+        _sortOrder = SortOrder.None;
+
+        foreach (DataGridViewColumn col in gridRecords.Columns)
+        {
+            col.HeaderCell.SortGlyphDirection = SortOrder.None;
+        }
 
         gridRecords.RowCount = _rows.Count;
         gridRecords.CurrentCell = null;
@@ -162,6 +171,7 @@ public partial class EntityBrowserControl : UserControl
         gridRecords.AllowUserToResizeColumns = false;
         gridRecords.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
         gridRecords.CellDoubleClick += gridRecords_CellDoubleClick;
+        gridRecords.ColumnHeaderMouseClick += gridRecords_ColumnHeaderMouseClick;
         TryEnableDoubleBuffering(gridRecords);
     }
 
@@ -336,5 +346,51 @@ public partial class EntityBrowserControl : UserControl
                 Clipboard.SetText(value.ToString()!);
             }
         }
+    }
+
+    private void gridRecords_ColumnHeaderMouseClick(object? sender, DataGridViewCellMouseEventArgs e)
+    {
+        if (_rows.Count == 0)
+        {
+            return;
+        }
+
+        var columnIndex = e.ColumnIndex;
+        if (_sortColumnIndex == columnIndex)
+        {
+            _sortOrder = _sortOrder == SortOrder.Ascending ? SortOrder.Descending : SortOrder.Ascending;
+        }
+        else
+        {
+            _sortColumnIndex = columnIndex;
+            _sortOrder = SortOrder.Ascending;
+        }
+
+        var ascending = _sortOrder == SortOrder.Ascending;
+        _rows.Sort((a, b) =>
+        {
+            var aVal = columnIndex < a.Values.Length ? a.Values[columnIndex]?.ToString() ?? string.Empty : string.Empty;
+            var bVal = columnIndex < b.Values.Length ? b.Values[columnIndex]?.ToString() ?? string.Empty : string.Empty;
+
+            if (double.TryParse(aVal, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var aNum)
+                && double.TryParse(bVal, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var bNum))
+            {
+                return ascending ? aNum.CompareTo(bNum) : bNum.CompareTo(aNum);
+            }
+
+            var cmp = string.Compare(aVal, bVal, StringComparison.OrdinalIgnoreCase);
+            return ascending ? cmp : -cmp;
+        });
+
+        foreach (DataGridViewColumn col in gridRecords.Columns)
+        {
+            col.HeaderCell.SortGlyphDirection = col.Index == columnIndex ? _sortOrder : SortOrder.None;
+        }
+
+        gridRecords.CurrentCell = null;
+        gridRecords.ClearSelection();
+        gridRecords.Invalidate();
+
+        SelectedRowChanged?.Invoke(this, null);
     }
 }

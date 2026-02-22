@@ -7,6 +7,7 @@ using App.WinForms.Forms;
 using App.WinForms.Models;
 using App.WinForms.Presenters;
 using Serilog;
+using System.ComponentModel;
 using System.Drawing;
 
 namespace App.WinForms;
@@ -22,6 +23,7 @@ public partial class MainForm : Form
     private readonly ILuaCommandBuilder _luaCommandBuilder;
     private readonly ICommandHistoryService _commandHistoryService;
     private readonly INameNormalizer _nameNormalizer;
+    private readonly ILocalCacheService _localCacheService;
 
     private readonly PlayerCheckerActionsControl _playerCheckerActions = new();
     private readonly MonsterActionsControl _monsterActions = new();
@@ -48,6 +50,8 @@ public partial class MainForm : Form
     private SummonRecord? _selectedSummon;
 
     private AppSettings _settings = new();
+    private int _inventorySortColumnIndex = -1;
+    private SortOrder _inventorySortOrder = SortOrder.None;
 
     public MainForm(
         IGameDataRepository repository,
@@ -55,7 +59,8 @@ public partial class MainForm : Form
         IConnectionStringBuilderService connectionStringBuilder,
         ILuaCommandBuilder luaCommandBuilder,
         ICommandHistoryService commandHistoryService,
-        INameNormalizer nameNormalizer)
+        INameNormalizer nameNormalizer,
+        ILocalCacheService localCacheService)
     {
         _repository = repository;
         _settingsService = settingsService;
@@ -63,6 +68,7 @@ public partial class MainForm : Form
         _luaCommandBuilder = luaCommandBuilder;
         _commandHistoryService = commandHistoryService;
         _nameNormalizer = nameNormalizer;
+        _localCacheService = localCacheService;
 
         InitializeComponent();
         ApplyReadabilityPalette();
@@ -156,6 +162,37 @@ public partial class MainForm : Form
         gridInventory.ColumnHeadersDefaultCellStyle.SelectionBackColor = header;
         gridInventory.ColumnHeadersDefaultCellStyle.SelectionForeColor = text;
         gridInventory.CellDoubleClick += GenericGrid_CellDoubleClick;
+        gridInventory.ColumnHeaderMouseClick += GridInventory_ColumnHeaderMouseClick;
+    }
+
+    private void GridInventory_ColumnHeaderMouseClick(object? sender, DataGridViewCellMouseEventArgs e)
+    {
+        if (gridInventory.Rows.Count == 0)
+        {
+            return;
+        }
+
+        var columnIndex = e.ColumnIndex;
+        if (_inventorySortColumnIndex == columnIndex)
+        {
+            _inventorySortOrder = _inventorySortOrder == SortOrder.Ascending ? SortOrder.Descending : SortOrder.Ascending;
+        }
+        else
+        {
+            _inventorySortColumnIndex = columnIndex;
+            _inventorySortOrder = SortOrder.Ascending;
+        }
+
+        var direction = _inventorySortOrder == SortOrder.Ascending
+            ? ListSortDirection.Ascending
+            : ListSortDirection.Descending;
+
+        gridInventory.Sort(gridInventory.Columns[columnIndex], direction);
+
+        foreach (DataGridViewColumn col in gridInventory.Columns)
+        {
+            col.HeaderCell.SortGlyphDirection = col.Index == columnIndex ? _inventorySortOrder : SortOrder.None;
+        }
     }
 
     private void GenericGrid_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
@@ -309,7 +346,9 @@ public partial class MainForm : Form
 
         _monsterPresenter = new EntityBrowserPresenter<MonsterRecord>(
             browserMonster,
-            ct => _repository.GetMonstersAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
+            ct => _settings.UseLocalCache
+                ? _localCacheService.LoadAsync<MonsterRecord>("monsters", ct)
+                : _repository.GetMonstersAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.Id,
             x => x.Name,
             x =>
@@ -328,7 +367,9 @@ public partial class MainForm : Form
 
         _itemsPresenter = new EntityBrowserPresenter<ItemRecord>(
             browserItems,
-            ct => _repository.GetItemsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
+            ct => _settings.UseLocalCache
+                ? _localCacheService.LoadAsync<ItemRecord>("items", ct)
+                : _repository.GetItemsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.ItemId,
             x => x.NameEn,
             x =>
@@ -340,7 +381,9 @@ public partial class MainForm : Form
 
         _skillsPresenter = new EntityBrowserPresenter<SkillRecord>(
             browserSkills,
-            ct => _repository.GetSkillsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
+            ct => _settings.UseLocalCache
+                ? _localCacheService.LoadAsync<SkillRecord>("skills", ct)
+                : _repository.GetSkillsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.SkillId,
             x => x.Skillname,
             x =>
@@ -352,7 +395,9 @@ public partial class MainForm : Form
 
         _buffsPresenter = new EntityBrowserPresenter<StateRecord>(
             browserBuffs,
-            ct => _repository.GetStatesAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
+            ct => _settings.UseLocalCache
+                ? _localCacheService.LoadAsync<StateRecord>("states", ct)
+                : _repository.GetStatesAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.StateId,
             x => x.BuffName,
             x =>
@@ -364,7 +409,9 @@ public partial class MainForm : Form
 
         _npcsPresenter = new EntityBrowserPresenter<NpcRecord>(
             browserNpcs,
-            ct => _repository.GetNpcsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
+            ct => _settings.UseLocalCache
+                ? _localCacheService.LoadAsync<NpcRecord>("npcs", ct)
+                : _repository.GetNpcsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.NpcId,
             x => x.NpcTitle,
             x =>
@@ -385,7 +432,9 @@ public partial class MainForm : Form
 
         _summonsPresenter = new EntityBrowserPresenter<SummonRecord>(
             browserSummons,
-            ct => _repository.GetSummonsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
+            ct => _settings.UseLocalCache
+                ? _localCacheService.LoadAsync<SummonRecord>("summons", ct)
+                : _repository.GetSummonsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.SummonId,
             x => x.SummonName,
             x =>
@@ -507,6 +556,8 @@ public partial class MainForm : Form
         _playerCheckerActions.LoadInventoryRequested += PlayerCheckerActions_LoadInventoryRequested;
         _playerCheckerActions.LoadWarehouseRequested += PlayerCheckerActions_LoadWarehouseRequested;
         _playerCheckerActions.OpenInfosRequested += PlayerCheckerActions_OpenInfosRequested;
+        _playerCheckerActions.LoadAllCharactersRequested += PlayerCheckerActions_LoadAllCharactersRequested;
+        _playerCheckerActions.LoadOnlineCharactersRequested += PlayerCheckerActions_LoadOnlineCharactersRequested;
         _monsterActions.CreateCommandRequested += MonsterActions_CreateCommandRequested;
         _itemsActions.AddYourselfRequested += ItemsActions_AddYourselfRequested;
         _itemsActions.GiveOtherPlayerRequested += ItemsActions_GiveOtherPlayerRequested;
@@ -685,8 +736,47 @@ public partial class MainForm : Form
             MessageBoxIcon.Information);
     }
 
+    private async void PlayerCheckerActions_LoadAllCharactersRequested(object? sender, EventArgs e)
+    {
+        if (_playerPresenter is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await _playerPresenter.LoadExternalAsync(
+                ct => _repository.GetAllCharactersAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct));
+        }
+        catch (Exception ex)
+        {
+            ShowError("Failed to load all characters.", ex);
+        }
+    }
+
+    private async void PlayerCheckerActions_LoadOnlineCharactersRequested(object? sender, EventArgs e)
+    {
+        if (_playerPresenter is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await _playerPresenter.LoadExternalAsync(
+                ct => _repository.GetOnlineCharactersAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct));
+        }
+        catch (Exception ex)
+        {
+            ShowError("Failed to load online characters.", ex);
+        }
+    }
+
     private void PopulateInventoryGrid(IReadOnlyList<InventoryItemRecord> items, string headerLabel)
     {
+        _inventorySortColumnIndex = -1;
+        _inventorySortOrder = SortOrder.None;
+
         gridInventory.SuspendLayout();
         gridInventory.Rows.Clear();
         gridInventory.Columns.Clear();
@@ -713,7 +803,7 @@ public partial class MainForm : Form
             HeaderText = header,
             Width = width,
             ReadOnly = true,
-            SortMode = DataGridViewColumnSortMode.NotSortable,
+            SortMode = DataGridViewColumnSortMode.Programmatic,
             AutoSizeMode = fill ? DataGridViewAutoSizeColumnMode.Fill : DataGridViewAutoSizeColumnMode.None,
             MinimumWidth = width / 2
         };
@@ -1469,7 +1559,7 @@ public partial class MainForm : Form
 
     private async void btnSettings_Click(object sender, EventArgs e)
     {
-        using var settingsForm = new SettingsForm(_repository, _connectionStringBuilder, _settings);
+        using var settingsForm = new SettingsForm(_repository, _connectionStringBuilder, _localCacheService, _settings);
         settingsForm.Icon = Icon;
         if (settingsForm.ShowDialog(this) != DialogResult.OK)
         {
