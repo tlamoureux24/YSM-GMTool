@@ -43,6 +43,7 @@ internal static class Program
             ILuaCommandBuilder commandBuilder = new LuaCommandBuilder(templateStore);
             ICommandHistoryService commandHistory = new CommandHistoryService();
             IGameDataRepository repository = new GameDataRepository(queryStore, new DbConnectionFactory());
+            ILocalCacheService localCache = new LocalCacheService(appDirectory);
 
             Application.Run(new MainForm(
                 repository,
@@ -50,7 +51,8 @@ internal static class Program
                 connectionStringBuilder,
                 commandBuilder,
                 commandHistory,
-                normalizer));
+                normalizer,
+                localCache));
         }
         catch (Exception ex)
         {

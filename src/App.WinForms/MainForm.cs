@@ -23,6 +23,7 @@ public partial class MainForm : Form
     private readonly ILuaCommandBuilder _luaCommandBuilder;
     private readonly ICommandHistoryService _commandHistoryService;
     private readonly INameNormalizer _nameNormalizer;
+    private readonly ILocalCacheService _localCacheService;
 
     private readonly PlayerCheckerActionsControl _playerCheckerActions = new();
     private readonly MonsterActionsControl _monsterActions = new();
@@ -58,7 +59,8 @@ public partial class MainForm : Form
         IConnectionStringBuilderService connectionStringBuilder,
         ILuaCommandBuilder luaCommandBuilder,
         ICommandHistoryService commandHistoryService,
-        INameNormalizer nameNormalizer)
+        INameNormalizer nameNormalizer,
+        ILocalCacheService localCacheService)
     {
         _repository = repository;
         _settingsService = settingsService;
@@ -66,6 +68,7 @@ public partial class MainForm : Form
         _luaCommandBuilder = luaCommandBuilder;
         _commandHistoryService = commandHistoryService;
         _nameNormalizer = nameNormalizer;
+        _localCacheService = localCacheService;
 
         InitializeComponent();
         ApplyReadabilityPalette();
@@ -343,7 +346,9 @@ public partial class MainForm : Form
 
         _monsterPresenter = new EntityBrowserPresenter<MonsterRecord>(
             browserMonster,
-            ct => _repository.GetMonstersAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
+            ct => _settings.UseLocalCache
+                ? _localCacheService.LoadAsync<MonsterRecord>("monsters", ct)
+                : _repository.GetMonstersAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.Id,
             x => x.Name,
             x =>
@@ -362,7 +367,9 @@ public partial class MainForm : Form
 
         _itemsPresenter = new EntityBrowserPresenter<ItemRecord>(
             browserItems,
-            ct => _repository.GetItemsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
+            ct => _settings.UseLocalCache
+                ? _localCacheService.LoadAsync<ItemRecord>("items", ct)
+                : _repository.GetItemsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.ItemId,
             x => x.NameEn,
             x =>
@@ -374,7 +381,9 @@ public partial class MainForm : Form
 
         _skillsPresenter = new EntityBrowserPresenter<SkillRecord>(
             browserSkills,
-            ct => _repository.GetSkillsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
+            ct => _settings.UseLocalCache
+                ? _localCacheService.LoadAsync<SkillRecord>("skills", ct)
+                : _repository.GetSkillsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.SkillId,
             x => x.Skillname,
             x =>
@@ -386,7 +395,9 @@ public partial class MainForm : Form
 
         _buffsPresenter = new EntityBrowserPresenter<StateRecord>(
             browserBuffs,
-            ct => _repository.GetStatesAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
+            ct => _settings.UseLocalCache
+                ? _localCacheService.LoadAsync<StateRecord>("states", ct)
+                : _repository.GetStatesAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.StateId,
             x => x.BuffName,
             x =>
@@ -398,7 +409,9 @@ public partial class MainForm : Form
 
         _npcsPresenter = new EntityBrowserPresenter<NpcRecord>(
             browserNpcs,
-            ct => _repository.GetNpcsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
+            ct => _settings.UseLocalCache
+                ? _localCacheService.LoadAsync<NpcRecord>("npcs", ct)
+                : _repository.GetNpcsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.NpcId,
             x => x.NpcTitle,
             x =>
@@ -419,7 +432,9 @@ public partial class MainForm : Form
 
         _summonsPresenter = new EntityBrowserPresenter<SummonRecord>(
             browserSummons,
-            ct => _repository.GetSummonsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
+            ct => _settings.UseLocalCache
+                ? _localCacheService.LoadAsync<SummonRecord>("summons", ct)
+                : _repository.GetSummonsAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct),
             x => x.SummonId,
             x => x.SummonName,
             x =>
@@ -1544,7 +1559,7 @@ public partial class MainForm : Form
 
     private async void btnSettings_Click(object sender, EventArgs e)
     {
-        using var settingsForm = new SettingsForm(_repository, _connectionStringBuilder, _settings);
+        using var settingsForm = new SettingsForm(_repository, _connectionStringBuilder, _localCacheService, _settings);
         settingsForm.Icon = Icon;
         if (settingsForm.ShowDialog(this) != DialogResult.OK)
         {

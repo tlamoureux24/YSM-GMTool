@@ -21,6 +21,8 @@ public sealed class AppSettings
 
     public bool LimitSelectQueries { get; set; } = true;
 
+    public bool UseLocalCache { get; set; } = false;
+
     public AppSettings Clone() => new()
     {
         Provider = Provider,
@@ -30,6 +32,7 @@ public sealed class AppSettings
         Players = Players is null ? [] : [.. Players],
         SelectedPlayer = SelectedPlayer,
         AppendGeneratedCommands = AppendGeneratedCommands,
-        LimitSelectQueries = LimitSelectQueries
+        LimitSelectQueries = LimitSelectQueries,
+        UseLocalCache = UseLocalCache
     };
 }
