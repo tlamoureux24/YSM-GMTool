@@ -19,6 +19,18 @@ public interface IGameDataRepository
         IReadOnlyDictionary<string, string>? queryTokens = null,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<PlayerRecord>> GetAllCharactersAsync(
+        DatabaseProvider provider,
+        string connectionString,
+        IReadOnlyDictionary<string, string>? queryTokens = null,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<PlayerRecord>> GetOnlineCharactersAsync(
+        DatabaseProvider provider,
+        string connectionString,
+        IReadOnlyDictionary<string, string>? queryTokens = null,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<InventoryItemRecord>> GetInventoryAsync(
         DatabaseProvider provider,
         string connectionString,

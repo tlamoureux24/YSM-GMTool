@@ -208,6 +208,40 @@ public partial class SettingsForm : Form
         Close();
     }
 
+    private void btnSaveEnv_Click(object sender, EventArgs e)
+    {
+        if (!TryBuildConnectionString(out var connectionString, out var validationMessage))
+        {
+            lblStatus.Text = validationMessage;
+            MessageBox.Show(this, validationMessage, "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        try
+        {
+            var provider = _workingSettings.Provider.ToString();
+            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var appDirectory = Path.Combine(localAppData, "YSM-GMTool");
+            Directory.CreateDirectory(appDirectory);
+            var envPath = Path.Combine(appDirectory, ".env");
+
+            var lines = new[]
+            {
+                $"YSM_DB_PROVIDER={provider}",
+                $"YSM_DB_CONNECTION_STRING={connectionString}"
+            };
+
+            File.WriteAllLines(envPath, lines);
+            lblStatus.Text = $"Saved to .env: {envPath}";
+            MessageBox.Show(this, $"Connection string saved to:{Environment.NewLine}{envPath}", "Saved to .env", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            lblStatus.Text = "Failed to save .env file.";
+            MessageBox.Show(this, ex.Message, "Save .env Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
     private void cmbProvider_SelectedIndexChanged(object sender, EventArgs e)
     {
         if (_isLoading)

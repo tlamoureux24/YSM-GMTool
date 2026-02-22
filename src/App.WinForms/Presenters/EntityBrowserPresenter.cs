@@ -64,6 +64,43 @@ public sealed class EntityBrowserPresenter<TRecord>
 
     public TRecord? SelectedRecord { get; private set; }
 
+    public async Task LoadExternalAsync(Func<CancellationToken, Task<IReadOnlyList<TRecord>>> loader)
+    {
+        _loadCts?.Cancel();
+        _loadCts?.Dispose();
+        _loadCts = new CancellationTokenSource();
+        var token = _loadCts.Token;
+
+        try
+        {
+            _view.SetStatus("Loading data from database...");
+            var records = await loader(token);
+            _index = BuildIndex(records);
+            _allRows = _index.Select(x => x.Row).ToList();
+            _dataVersion++;
+            _lastFilterQuery = null;
+
+            var resultRows = (IEnumerable<BrowserRow>)_allRows;
+            var maxRows = _maxRowsSelector?.Invoke();
+            if (maxRows.HasValue && maxRows.Value > 0)
+            {
+                resultRows = resultRows.Take(maxRows.Value);
+            }
+
+            var finalRows = resultRows.ToList();
+            _view.SetRows(finalRows);
+            _view.SetStatus($"Loaded {_allRows.Count.ToString("N0", CultureInfo.InvariantCulture)} record(s). Showing {finalRows.Count.ToString("N0", CultureInfo.InvariantCulture)}.");
+        }
+        catch (OperationCanceledException)
+        {
+            // Ignore stale load operations.
+        }
+        catch (Exception ex)
+        {
+            ErrorOccurred?.Invoke(this, ex);
+        }
+    }
+
     private async void OnLoadAllRequested(object? sender, EventArgs e)
     {
         await LoadAllAsync();

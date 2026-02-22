@@ -36,6 +36,20 @@ public sealed class GameDataRepository(IQueryStore queryStore, DbConnectionFacto
         return QueryAsync<PlayerRecord>(provider, connectionString, entity, queryTokens, parameters, cancellationToken);
     }
 
+    public Task<IReadOnlyList<PlayerRecord>> GetAllCharactersAsync(
+        DatabaseProvider provider,
+        string connectionString,
+        IReadOnlyDictionary<string, string>? queryTokens = null,
+        CancellationToken cancellationToken = default)
+        => QueryAsync<PlayerRecord>(provider, connectionString, QueryEntity.PlayercheckerAll, queryTokens, null, cancellationToken);
+
+    public Task<IReadOnlyList<PlayerRecord>> GetOnlineCharactersAsync(
+        DatabaseProvider provider,
+        string connectionString,
+        IReadOnlyDictionary<string, string>? queryTokens = null,
+        CancellationToken cancellationToken = default)
+        => QueryAsync<PlayerRecord>(provider, connectionString, QueryEntity.PlayercheckerOnline, queryTokens, null, cancellationToken);
+
     public Task<IReadOnlyList<InventoryItemRecord>> GetInventoryAsync(
         DatabaseProvider provider,
         string connectionString,

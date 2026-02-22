@@ -7,6 +7,7 @@ using App.WinForms.Forms;
 using App.WinForms.Models;
 using App.WinForms.Presenters;
 using Serilog;
+using System.ComponentModel;
 using System.Drawing;
 
 namespace App.WinForms;
@@ -48,6 +49,8 @@ public partial class MainForm : Form
     private SummonRecord? _selectedSummon;
 
     private AppSettings _settings = new();
+    private int _inventorySortColumnIndex = -1;
+    private SortOrder _inventorySortOrder = SortOrder.None;
 
     public MainForm(
         IGameDataRepository repository,
@@ -156,6 +159,37 @@ public partial class MainForm : Form
         gridInventory.ColumnHeadersDefaultCellStyle.SelectionBackColor = header;
         gridInventory.ColumnHeadersDefaultCellStyle.SelectionForeColor = text;
         gridInventory.CellDoubleClick += GenericGrid_CellDoubleClick;
+        gridInventory.ColumnHeaderMouseClick += GridInventory_ColumnHeaderMouseClick;
+    }
+
+    private void GridInventory_ColumnHeaderMouseClick(object? sender, DataGridViewCellMouseEventArgs e)
+    {
+        if (gridInventory.Rows.Count == 0)
+        {
+            return;
+        }
+
+        var columnIndex = e.ColumnIndex;
+        if (_inventorySortColumnIndex == columnIndex)
+        {
+            _inventorySortOrder = _inventorySortOrder == SortOrder.Ascending ? SortOrder.Descending : SortOrder.Ascending;
+        }
+        else
+        {
+            _inventorySortColumnIndex = columnIndex;
+            _inventorySortOrder = SortOrder.Ascending;
+        }
+
+        var direction = _inventorySortOrder == SortOrder.Ascending
+            ? ListSortDirection.Ascending
+            : ListSortDirection.Descending;
+
+        gridInventory.Sort(gridInventory.Columns[columnIndex], direction);
+
+        foreach (DataGridViewColumn col in gridInventory.Columns)
+        {
+            col.HeaderCell.SortGlyphDirection = col.Index == columnIndex ? _inventorySortOrder : SortOrder.None;
+        }
     }
 
     private void GenericGrid_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
@@ -507,6 +541,8 @@ public partial class MainForm : Form
         _playerCheckerActions.LoadInventoryRequested += PlayerCheckerActions_LoadInventoryRequested;
         _playerCheckerActions.LoadWarehouseRequested += PlayerCheckerActions_LoadWarehouseRequested;
         _playerCheckerActions.OpenInfosRequested += PlayerCheckerActions_OpenInfosRequested;
+        _playerCheckerActions.LoadAllCharactersRequested += PlayerCheckerActions_LoadAllCharactersRequested;
+        _playerCheckerActions.LoadOnlineCharactersRequested += PlayerCheckerActions_LoadOnlineCharactersRequested;
         _monsterActions.CreateCommandRequested += MonsterActions_CreateCommandRequested;
         _itemsActions.AddYourselfRequested += ItemsActions_AddYourselfRequested;
         _itemsActions.GiveOtherPlayerRequested += ItemsActions_GiveOtherPlayerRequested;
@@ -685,8 +721,47 @@ public partial class MainForm : Form
             MessageBoxIcon.Information);
     }
 
+    private async void PlayerCheckerActions_LoadAllCharactersRequested(object? sender, EventArgs e)
+    {
+        if (_playerPresenter is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await _playerPresenter.LoadExternalAsync(
+                ct => _repository.GetAllCharactersAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct));
+        }
+        catch (Exception ex)
+        {
+            ShowError("Failed to load all characters.", ex);
+        }
+    }
+
+    private async void PlayerCheckerActions_LoadOnlineCharactersRequested(object? sender, EventArgs e)
+    {
+        if (_playerPresenter is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await _playerPresenter.LoadExternalAsync(
+                ct => _repository.GetOnlineCharactersAsync(_settings.Provider, GetConfiguredConnectionString(), GetQueryTokens(), ct));
+        }
+        catch (Exception ex)
+        {
+            ShowError("Failed to load online characters.", ex);
+        }
+    }
+
     private void PopulateInventoryGrid(IReadOnlyList<InventoryItemRecord> items, string headerLabel)
     {
+        _inventorySortColumnIndex = -1;
+        _inventorySortOrder = SortOrder.None;
+
         gridInventory.SuspendLayout();
         gridInventory.Rows.Clear();
         gridInventory.Columns.Clear();
@@ -713,7 +788,7 @@ public partial class MainForm : Form
             HeaderText = header,
             Width = width,
             ReadOnly = true,
-            SortMode = DataGridViewColumnSortMode.NotSortable,
+            SortMode = DataGridViewColumnSortMode.Programmatic,
             AutoSizeMode = fill ? DataGridViewAutoSizeColumnMode.Fill : DataGridViewAutoSizeColumnMode.None,
             MinimumWidth = width / 2
         };

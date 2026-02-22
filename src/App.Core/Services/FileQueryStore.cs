@@ -63,6 +63,8 @@ public sealed class FileQueryStore : IQueryStore
         QueryEntity.Playerchecker => "Playerchecker",
         QueryEntity.PlayercheckerByCharName => "PlayercheckerByCharName",
         QueryEntity.PlayercheckerByAccount => "PlayercheckerByAccount",
+        QueryEntity.PlayercheckerAll => "PlayercheckerAll",
+        QueryEntity.PlayercheckerOnline => "PlayercheckerOnline",
         QueryEntity.PlayerInventory => "PlayerInventory",
         QueryEntity.PlayerWarehouse => "PlayerWarehouse",
         QueryEntity.Monsters => "Monsters",

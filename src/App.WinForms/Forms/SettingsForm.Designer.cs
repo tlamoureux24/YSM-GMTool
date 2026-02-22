@@ -51,6 +51,7 @@ partial class SettingsForm
     private Label lblStatus;
     private FlowLayoutPanel flpButtons;
     private Button btnTestConnection;
+    private Button btnSaveEnv;
     private Button btnSave;
     private Button btnCancel;
     private TabPage tabGeneral;
@@ -120,6 +121,7 @@ partial class SettingsForm
         lblStatus = new Label();
         flpButtons = new FlowLayoutPanel();
         btnTestConnection = new Button();
+        btnSaveEnv = new Button();
         btnSave = new Button();
         btnCancel = new Button();
         tlpRoot.SuspendLayout();
@@ -691,38 +693,49 @@ partial class SettingsForm
         // 
         flpButtons.AutoSize = true;
         flpButtons.Controls.Add(btnTestConnection);
+        flpButtons.Controls.Add(btnSaveEnv);
         flpButtons.Controls.Add(btnSave);
         flpButtons.Controls.Add(btnCancel);
         flpButtons.Dock = DockStyle.Right;
         flpButtons.FlowDirection = FlowDirection.RightToLeft;
-        flpButtons.Location = new Point(557, 610);
+        flpButtons.Location = new Point(449, 610);
         flpButtons.Name = "flpButtons";
-        flpButtons.Size = new Size(343, 35);
+        flpButtons.Size = new Size(451, 35);
         flpButtons.TabIndex = 2;
-        // 
+        //
         // btnTestConnection
-        // 
-        btnTestConnection.Location = new Point(237, 3);
+        //
+        btnTestConnection.Location = new Point(345, 3);
         btnTestConnection.Name = "btnTestConnection";
         btnTestConnection.Size = new Size(100, 29);
         btnTestConnection.TabIndex = 0;
         btnTestConnection.Text = "Test";
         btnTestConnection.UseVisualStyleBackColor = true;
         btnTestConnection.Click += btnTestConnection_Click;
-        // 
+        //
+        // btnSaveEnv
+        //
+        btnSaveEnv.Location = new Point(239, 3);
+        btnSaveEnv.Name = "btnSaveEnv";
+        btnSaveEnv.Size = new Size(100, 29);
+        btnSaveEnv.TabIndex = 3;
+        btnSaveEnv.Text = "Save to .env";
+        btnSaveEnv.UseVisualStyleBackColor = true;
+        btnSaveEnv.Click += btnSaveEnv_Click;
+        //
         // btnSave
-        // 
-        btnSave.Location = new Point(131, 3);
+        //
+        btnSave.Location = new Point(133, 3);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(100, 29);
         btnSave.TabIndex = 1;
         btnSave.Text = "Save";
         btnSave.UseVisualStyleBackColor = true;
         btnSave.Click += btnSave_Click;
-        // 
+        //
         // btnCancel
-        // 
-        btnCancel.Location = new Point(25, 3);
+        //
+        btnCancel.Location = new Point(27, 3);
         btnCancel.Name = "btnCancel";
         btnCancel.Size = new Size(100, 29);
         btnCancel.TabIndex = 2;

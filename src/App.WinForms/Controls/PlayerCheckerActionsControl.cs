@@ -13,6 +13,10 @@ public partial class PlayerCheckerActionsControl : UserControl
 
     public event EventHandler? OpenInfosRequested;
 
+    public event EventHandler? LoadAllCharactersRequested;
+
+    public event EventHandler? LoadOnlineCharactersRequested;
+
     private void btnLoadInventory_Click(object sender, EventArgs e)
     {
         LoadInventoryRequested?.Invoke(this, EventArgs.Empty);
@@ -26,5 +30,15 @@ public partial class PlayerCheckerActionsControl : UserControl
     private void btnOpenInfos_Click(object sender, EventArgs e)
     {
         OpenInfosRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void btnLoadAllCharacters_Click(object sender, EventArgs e)
+    {
+        LoadAllCharactersRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void btnLoadOnlineCharacters_Click(object sender, EventArgs e)
+    {
+        LoadOnlineCharactersRequested?.Invoke(this, EventArgs.Empty);
     }
 }
