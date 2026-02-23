@@ -32,6 +32,7 @@ public partial class MainForm : Form
     private readonly BuffsActionsControl _buffsActions = new();
     private readonly NpcsActionsControl _npcsActions = new();
     private readonly SummonsActionsControl _summonsActions = new();
+    private readonly WarpActionsControl _warpActions = new();
 
     private EntityBrowserPresenter<PlayerRecord>? _playerPresenter;
     private EntityBrowserPresenter<MonsterRecord>? _monsterPresenter;
@@ -48,6 +49,7 @@ public partial class MainForm : Form
     private StateRecord? _selectedState;
     private NpcRecord? _selectedNpc;
     private SummonRecord? _selectedSummon;
+    private WarpLocationSettings? _selectedWarp;
 
     private AppSettings _settings = new();
     private int _inventorySortColumnIndex = -1;
@@ -216,6 +218,7 @@ public partial class MainForm : Form
         AddActionControl(browserBuffs, _buffsActions);
         AddActionControl(browserNpcs, _npcsActions);
         AddActionControl(browserSummons, _summonsActions);
+        AddActionControl(browserWarp, _warpActions);
     }
 
     private static void AddActionControl(EntityBrowserControl browser, Control control)
@@ -312,6 +315,16 @@ public partial class MainForm : Form
             new BrowserColumnDefinition("summonName", "Summon Name", 320, true),
             new BrowserColumnDefinition("cardName", "Card Name", 320, true)
         ]);
+
+        browserWarp.ConfigureColumns(
+        [
+            new BrowserColumnDefinition("x", "X", 120),
+            new BrowserColumnDefinition("y", "Y", 120),
+            new BrowserColumnDefinition("name", "Name", 420, true)
+        ]);
+        browserWarp.ConfigureSearchLabels(string.Empty, "by Name");
+        browserWarp.ConfigureIdSearch(false);
+        browserWarp.SetStatus("Ready.");
     }
 
     private void InitializePresenters()
@@ -577,6 +590,15 @@ public partial class MainForm : Form
         _npcsActions.CreateWarpToNpcCommandRequested += NpcsActions_CreateWarpToNpcCommandRequested;
         _summonsActions.AddSummonRequested += SummonsActions_AddSummonRequested;
         _summonsActions.StageSummonRequested += SummonsActions_StageSummonRequested;
+        _warpActions.WarpRequested += WarpActions_WarpRequested;
+        _warpActions.WarpToYouRequested += WarpActions_WarpToYouRequested;
+        _warpActions.WarpToSomeoneRequested += WarpActions_WarpToSomeoneRequested;
+        _warpActions.AddWarpRequested += WarpActions_AddWarpRequested;
+        _warpActions.RemoveSelectedWarpRequested += WarpActions_RemoveSelectedWarpRequested;
+
+        browserWarp.LoadAllRequested += BrowserWarp_LoadAllRequested;
+        browserWarp.FilterRequested += BrowserWarp_FilterRequested;
+        browserWarp.SelectedRowChanged += BrowserWarp_SelectedRowChanged;
     }
 
     private async void MainForm_Load(object? sender, EventArgs e)
@@ -619,6 +641,11 @@ public partial class MainForm : Form
         _settings.Connection ??= new();
         _settings.TableNames ??= new();
         _settings.Players ??= [];
+        _settings.WarpLocations ??= [];
+        if (_settings.WarpLocations.Count == 0)
+        {
+            _settings.WarpLocations = GetDefaultWarpLocations();
+        }
     }
 
     private void ApplySettingsToUi()
@@ -637,6 +664,10 @@ public partial class MainForm : Form
             cmbPlayers.SelectedItem = _settings.SelectedPlayer;
         }
         cmbPlayers.EndUpdate();
+
+        RefreshWarpRows();
+        _selectedWarp = null;
+        _warpActions.ClearAddFields();
     }
 
     private string GetConfiguredConnectionString()
@@ -803,6 +834,243 @@ public partial class MainForm : Form
             AutoSizeMode = fill ? DataGridViewAutoSizeColumnMode.Fill : DataGridViewAutoSizeColumnMode.None,
             MinimumWidth = width / 2
         };
+
+    private void BrowserWarp_LoadAllRequested(object? sender, EventArgs e)
+    {
+        RefreshWarpRows();
+    }
+
+    private void BrowserWarp_FilterRequested(object? sender, EventArgs e)
+    {
+        var filtered = GetFilteredWarpLocations();
+        SetWarpRows(filtered, $"Loaded {filtered.Count} warp(s).");
+    }
+
+    private void BrowserWarp_SelectedRowChanged(object? sender, BrowserRow? row)
+    {
+        if (!TryMapRowToWarp(row, out var warp))
+        {
+            _selectedWarp = null;
+            return;
+        }
+
+        _selectedWarp = warp;
+        _warpActions.SelectedX = warp.X;
+        _warpActions.SelectedY = warp.Y;
+        _warpActions.PrimeAddFieldsFromSelected();
+    }
+
+    private void RefreshWarpRows()
+    {
+        var status = $"Loaded {_settings.WarpLocations.Count} warp(s).";
+        SetWarpRows(_settings.WarpLocations, status);
+    }
+
+    private void SetWarpRows(IReadOnlyList<WarpLocationSettings> warps, string status)
+    {
+        var rows = warps
+            .Select(x => new BrowserRow(x, [x.X, x.Y, x.Name]))
+            .ToList();
+
+        browserWarp.SetRows(rows);
+        browserWarp.SetStatus(status);
+    }
+
+    private List<WarpLocationSettings> GetFilteredWarpLocations()
+    {
+        var term = browserWarp.SearchText.Trim();
+        if (string.IsNullOrWhiteSpace(term))
+        {
+            return [.. _settings.WarpLocations];
+        }
+
+        return _settings.WarpLocations
+            .Where(x => x.Name.Contains(term, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    private static bool TryMapRowToWarp(BrowserRow? row, out WarpLocationSettings warp)
+    {
+        warp = new WarpLocationSettings();
+        if (row is null)
+        {
+            return false;
+        }
+
+        if (row.Tag is WarpLocationSettings typed)
+        {
+            warp = typed;
+            return true;
+        }
+
+        if (row.Values.Length < 3)
+        {
+            return false;
+        }
+
+        if (!int.TryParse(Convert.ToString(row.Values[0], System.Globalization.CultureInfo.InvariantCulture), out var x)
+            || !int.TryParse(Convert.ToString(row.Values[1], System.Globalization.CultureInfo.InvariantCulture), out var y))
+        {
+            return false;
+        }
+
+        warp = new WarpLocationSettings
+        {
+            X = x,
+            Y = y,
+            Name = Convert.ToString(row.Values[2], System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty
+        };
+        return true;
+    }
+
+    private void WarpActions_WarpRequested(object? sender, EventArgs e)
+    {
+        if (_selectedWarp is null)
+        {
+            MessageBox.Show(this, "Select warp first.", "Warp", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        var targetPlayer = ResolveRequiredWarpPlayer();
+        if (targetPlayer is null)
+        {
+            return;
+        }
+
+        BuildAndDispatchCommand("warpToLocationForPlayer", new Dictionary<string, object?>
+        {
+            ["x"] = _selectedWarp.X,
+            ["y"] = _selectedWarp.Y,
+            ["playerName"] = EscapeLuaSingleQuotedString(targetPlayer)
+        });
+    }
+
+    private void WarpActions_WarpToYouRequested(object? sender, EventArgs e)
+    {
+        var targetPlayer = ResolveRequiredWarpPlayer();
+        if (targetPlayer is null)
+        {
+            return;
+        }
+
+        BuildAndDispatchCommand("warpPlayerToYou", new Dictionary<string, object?>
+        {
+            ["playerName"] = EscapeLuaSingleQuotedString(targetPlayer)
+        });
+    }
+
+    private void WarpActions_WarpToSomeoneRequested(object? sender, EventArgs e)
+    {
+        var targetPlayer = ResolveRequiredWarpPlayer();
+        if (targetPlayer is null)
+        {
+            return;
+        }
+
+        BuildAndDispatchCommand("warpYouToPlayer", new Dictionary<string, object?>
+        {
+            ["playerName"] = EscapeLuaSingleQuotedString(targetPlayer)
+        });
+    }
+
+    private void WarpActions_AddWarpRequested(object? sender, EventArgs e)
+    {
+        var name = _warpActions.LocationName;
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            MessageBox.Show(this, "Location name is required.", "Warp", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        _settings.WarpLocations.Add(new WarpLocationSettings
+        {
+            X = _warpActions.AddX,
+            Y = _warpActions.AddY,
+            Name = name
+        });
+
+        RefreshWarpRows();
+        _warpActions.ClearAddFields();
+        _ = SaveSettingsSafeAsync();
+    }
+
+    private void WarpActions_RemoveSelectedWarpRequested(object? sender, EventArgs e)
+    {
+        if (_selectedWarp is null)
+        {
+            MessageBox.Show(this, "Select warp first.", "Warp", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        var removed = _settings.WarpLocations.Remove(_selectedWarp);
+        if (!removed)
+        {
+            removed = _settings.WarpLocations.RemoveAll(x =>
+                x.X == _selectedWarp.X
+                && x.Y == _selectedWarp.Y
+                && x.Name.Equals(_selectedWarp.Name, StringComparison.Ordinal)) > 0;
+        }
+
+        if (!removed)
+        {
+            MessageBox.Show(this, "Selected warp was not found.", "Warp", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        _selectedWarp = null;
+        RefreshWarpRows();
+        _ = SaveSettingsSafeAsync();
+    }
+
+    private string? ResolveRequiredWarpPlayer()
+    {
+        var targetPlayer = ResolveTargetPlayer();
+        if (targetPlayer.Equals("self", StringComparison.OrdinalIgnoreCase))
+        {
+            MessageBox.Show(this, "Select player in the right sidebar.", "Warp", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return null;
+        }
+
+        return targetPlayer;
+    }
+
+    private static List<WarpLocationSettings> GetDefaultWarpLocations()
+    {
+        return
+        [
+            new WarpLocationSettings { X = 152465, Y = 76951, Name = "Horizon" },
+            new WarpLocationSettings { X = 151896, Y = 72599, Name = "Horizon Arena" },
+            new WarpLocationSettings { X = 139369, Y = 73704, Name = "Witch" },
+            new WarpLocationSettings { X = 132995, Y = 87096, Name = "Moonlight 1" },
+            new WarpLocationSettings { X = 130842, Y = 79586, Name = "Moonlight 2" },
+            new WarpLocationSettings { X = 155817, Y = 103724, Name = "Lost Mines 1" },
+            new WarpLocationSettings { X = 152309, Y = 102886, Name = "Lost Mines 2" },
+            new WarpLocationSettings { X = 117974, Y = 59119, Name = "Katan" },
+            new WarpLocationSettings { X = 7363, Y = 7101, Name = "Laksy" },
+            new WarpLocationSettings { X = 135876, Y = 156035, Name = "Fairy's Woods" },
+            new WarpLocationSettings { X = 142086, Y = 132207, Name = "Siren Island" },
+            new WarpLocationSettings { X = 138174, Y = 105965, Name = "Rondo" },
+            new WarpLocationSettings { X = 159712, Y = 124736, Name = "Beginning of Marduka" },
+            new WarpLocationSettings { X = 162624, Y = 131811, Name = "Mare Village" },
+            new WarpLocationSettings { X = 211302, Y = 129971, Name = "Palmir Plateau 1" },
+            new WarpLocationSettings { X = 211299, Y = 146193, Name = "Palmir Plateau 2" },
+            new WarpLocationSettings { X = 103210, Y = 100366, Name = "CV1" },
+            new WarpLocationSettings { X = 99757, Y = 103236, Name = "CV2" },
+            new WarpLocationSettings { X = 154666, Y = 150287, Name = "City of Ruins" },
+            new WarpLocationSettings { X = 83876, Y = 115913, Name = "Veiled Island" },
+            new WarpLocationSettings { X = 201400, Y = 151566, Name = "Temple of Ancient" },
+            new WarpLocationSettings { X = 201400, Y = 167649, Name = "Temple of Lost Souls" },
+            new WarpLocationSettings { X = 201400, Y = 135438, Name = "Temple of Exile" },
+            new WarpLocationSettings { X = 98965, Y = 129209, Name = "The labyrinth" },
+            new WarpLocationSettings { X = 38300, Y = 118304, Name = "Circus" },
+            new WarpLocationSettings { X = 108660, Y = 76471, Name = "Remain of the Ancient" },
+            new WarpLocationSettings { X = 98536, Y = 127399, Name = "Devildom" },
+            new WarpLocationSettings { X = 20377, Y = 100948, Name = "Sky fortress" },
+            new WarpLocationSettings { X = 222235, Y = 20078, Name = "Hidden village" },
+            new WarpLocationSettings { X = 68953, Y = 23575, Name = "Twilight Underworld" },
+            new WarpLocationSettings { X = 36342, Y = 104892, Name = "Al Catraz" }
+        ];
+    }
 
     private void MonsterActions_CreateCommandRequested(object? sender, EventArgs e)
     {

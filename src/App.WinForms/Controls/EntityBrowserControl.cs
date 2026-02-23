@@ -57,6 +57,16 @@ public partial class EntityBrowserControl : UserControl
         rbSearchByName.Text = byNameLabel;
     }
 
+    public void ConfigureIdSearch(bool enabled)
+    {
+        rbSearchById.Visible = enabled;
+        rbSearchById.Enabled = enabled;
+        if (!enabled && rbSearchById.Checked)
+        {
+            rbSearchByName.Checked = true;
+        }
+    }
+
     public void HideLoadAllButton()
     {
         btnLoadAll.Visible = false;

@@ -12,6 +12,7 @@ partial class MainForm
     private TabPage tabBuffs;
     private TabPage tabNpcs;
     private TabPage tabSummons;
+    private TabPage tabWarp;
     private TabPage tabCommandOverview;
     private SplitContainer splitPlayerchecker;
     private Controls.EntityBrowserControl browserPlayerchecker;
@@ -22,6 +23,7 @@ partial class MainForm
     private Controls.EntityBrowserControl browserBuffs;
     private Controls.EntityBrowserControl browserNpcs;
     private Controls.EntityBrowserControl browserSummons;
+    private Controls.EntityBrowserControl browserWarp;
     private TableLayoutPanel tlpSidebar;
     private FlowLayoutPanel flpTopButtons;
     private PictureBox picAvatar;
@@ -72,6 +74,8 @@ partial class MainForm
         browserNpcs = new Controls.EntityBrowserControl();
         tabSummons = new TabPage();
         browserSummons = new Controls.EntityBrowserControl();
+        tabWarp = new TabPage();
+        browserWarp = new Controls.EntityBrowserControl();
         tabCommandOverview = new TabPage();
         tlpCommandOverview = new TableLayoutPanel();
         lstCommands = new ListBox();
@@ -106,6 +110,7 @@ partial class MainForm
         tabBuffs.SuspendLayout();
         tabNpcs.SuspendLayout();
         tabSummons.SuspendLayout();
+        tabWarp.SuspendLayout();
         tabCommandOverview.SuspendLayout();
         tlpCommandOverview.SuspendLayout();
         flpCommandButtons.SuspendLayout();
@@ -139,6 +144,7 @@ partial class MainForm
         tabMain.Controls.Add(tabBuffs);
         tabMain.Controls.Add(tabNpcs);
         tabMain.Controls.Add(tabSummons);
+        tabMain.Controls.Add(tabWarp);
         tabMain.Dock = DockStyle.Fill;
         tabMain.Location = new Point(3, 3);
         tabMain.Name = "tabMain";
@@ -313,6 +319,25 @@ partial class MainForm
         browserSummons.Size = new Size(1050, 815);
         browserSummons.TabIndex = 0;
         // 
+        // tabWarp
+        // 
+        tabWarp.Controls.Add(browserWarp);
+        tabWarp.Location = new Point(4, 29);
+        tabWarp.Name = "tabWarp";
+        tabWarp.Padding = new Padding(3);
+        tabWarp.Size = new Size(1056, 821);
+        tabWarp.TabIndex = 7;
+        tabWarp.Text = "Warp";
+        tabWarp.UseVisualStyleBackColor = true;
+        // 
+        // browserWarp
+        // 
+        browserWarp.Dock = DockStyle.Fill;
+        browserWarp.Location = new Point(3, 3);
+        browserWarp.Name = "browserWarp";
+        browserWarp.Size = new Size(1050, 815);
+        browserWarp.TabIndex = 0;
+        // 
         // tabCommandOverview
         // 
         tabCommandOverview.Controls.Add(tlpCommandOverview);
@@ -320,7 +345,7 @@ partial class MainForm
         tabCommandOverview.Name = "tabCommandOverview";
         tabCommandOverview.Padding = new Padding(3);
         tabCommandOverview.Size = new Size(1056, 821);
-        tabCommandOverview.TabIndex = 7;
+        tabCommandOverview.TabIndex = 8;
         tabCommandOverview.Text = "Command Overview";
         tabCommandOverview.UseVisualStyleBackColor = true;
         // 
@@ -586,6 +611,7 @@ partial class MainForm
         tabBuffs.ResumeLayout(false);
         tabNpcs.ResumeLayout(false);
         tabSummons.ResumeLayout(false);
+        tabWarp.ResumeLayout(false);
         tabCommandOverview.ResumeLayout(false);
         tlpCommandOverview.ResumeLayout(false);
         tlpCommandOverview.PerformLayout();

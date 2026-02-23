@@ -28,6 +28,9 @@
     <Compile Update="Controls\SummonsActionsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="Controls\WarpActionsControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="Forms\AboutForm.cs">
       <SubType>Form</SubType>
     </Compile>

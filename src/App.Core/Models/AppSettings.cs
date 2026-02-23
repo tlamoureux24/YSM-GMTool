@@ -23,6 +23,8 @@ public sealed class AppSettings
 
     public bool UseLocalCache { get; set; } = false;
 
+    public List<WarpLocationSettings> WarpLocations { get; set; } = [];
+
     public AppSettings Clone() => new()
     {
         Provider = Provider,
@@ -33,6 +35,7 @@ public sealed class AppSettings
         SelectedPlayer = SelectedPlayer,
         AppendGeneratedCommands = AppendGeneratedCommands,
         LimitSelectQueries = LimitSelectQueries,
-        UseLocalCache = UseLocalCache
+        UseLocalCache = UseLocalCache,
+        WarpLocations = WarpLocations is null ? [] : [.. WarpLocations.Select(static x => x.Clone())]
     };
 }
