@@ -34,7 +34,14 @@
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <AutoPublishOnRelease>true</AutoPublishOnRelease>
     <AutoPublishDir Condition="'$(AutoPublishDir)' == ''">$(USERPROFILE)\Desktop\GM Tool\</AutoPublishDir>
-    <AutoPublishSatelliteLanguages>pl;en</AutoPublishSatelliteLanguages>
+    <AutoPublishSatelliteLanguages>pl</AutoPublishSatelliteLanguages>
+    <AutoPublishSelfContained>false</AutoPublishSelfContained>
+    <AutoPublishSingleFile>true</AutoPublishSingleFile>
+    <AutoPublishIncludeNativeLibrariesForSelfExtract>true</AutoPublishIncludeNativeLibrariesForSelfExtract>
+    <AutoPublishUseAppHost>true</AutoPublishUseAppHost>
+    <AutoPublishCopySymbols>false</AutoPublishCopySymbols>
+    <AutoPublishDebugType>None</AutoPublishDebugType>
+    <AutoPublishReadyToRun>false</AutoPublishReadyToRun>
     <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..'))</RepositoryRoot>
   </PropertyGroup>
 
@@ -46,7 +53,7 @@
     <MakeDir Directories="$(AutoPublishDir)" />
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="Publish"
-             Properties="Configuration=$(Configuration);IsAutoPublishInvocation=true;PublishDir=$(AutoPublishDir);RuntimeIdentifier=win-x64;SelfContained=false;PublishSingleFile=true;IncludeNativeLibrariesForSelfExtract=true;UseAppHost=true;CopyOutputSymbolsToPublishDirectory=false;DebugType=None;SatelliteResourceLanguages=$(AutoPublishSatelliteLanguages)"
+             Properties="Configuration=$(Configuration);IsAutoPublishInvocation=true;PublishDir=$(AutoPublishDir);SelfContained=$(AutoPublishSelfContained);PublishSingleFile=$(AutoPublishSingleFile);IncludeNativeLibrariesForSelfExtract=$(AutoPublishIncludeNativeLibrariesForSelfExtract);UseAppHost=$(AutoPublishUseAppHost);CopyOutputSymbolsToPublishDirectory=$(AutoPublishCopySymbols);DebugType=$(AutoPublishDebugType);PublishReadyToRun=$(AutoPublishReadyToRun);SatelliteResourceLanguages=$(AutoPublishSatelliteLanguages)"
              StopOnFirstFailure="true" />
     <Copy SourceFiles="$(RepositoryRoot)\.env"
           DestinationFolder="$(AutoPublishDir)"
