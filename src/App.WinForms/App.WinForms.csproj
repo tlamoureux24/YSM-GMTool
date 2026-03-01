@@ -33,7 +33,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <AutoPublishOnRelease>true</AutoPublishOnRelease>
-    <AutoPublishDir Condition="'$(AutoPublishDir)' == ''">$(USERPROFILE)\Desktop\GM Tool\</AutoPublishDir>
+    <AutoPublishDir Condition="'$(AutoPublishDir)' == ''">$(USERPROFILE)\Documents\YSMReleasedTools\GM-Tool\</AutoPublishDir>
     <AutoPublishSatelliteLanguages>pl</AutoPublishSatelliteLanguages>
     <AutoPublishSelfContained>false</AutoPublishSelfContained>
     <AutoPublishSingleFile>true</AutoPublishSingleFile>

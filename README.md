@@ -27,11 +27,16 @@ dotnet restore YSM-GMTool.slnx
 dotnet run --project src/App.WinForms/App.WinForms.csproj
 ```
 
-**Option B — Release build (auto-publish to Desktop)**
+**Option B — Release build (auto-publish to YSMReleasedTools)**
 ```bash
 dotnet build src/App.WinForms/App.WinForms.csproj -c Release
 ```
-*The Release build automatically publishes a self-contained executable to `%USERPROFILE%\Desktop\GM Tool\`. If the build fails with a file-lock error, close `GM Tool.exe` from that folder and retry.*
+*The Release build automatically publishes a clean executable output to `%USERPROFILE%\Documents\YSMReleasedTools\GM-Tool\`. If the build fails with a file-lock error, close `GM Tool.exe` from that folder and retry.*
+
+**Option C — Explicit clean publish**
+```bash
+powershell -ExecutionPolicy Bypass -File .\scripts\publish-release.ps1
+```
 
 ---
 
@@ -179,4 +184,4 @@ src/
 | Empty grid after searching | Verify provider, connection string, and token values in Settings → Table Names |
 | PlayerChecker shows no results | Make sure `Telecaster Name` and `Arcadia Name` are set correctly; the queries are cross-database |
 | Warehouse items not loading | Verify `Auth Name` token is set and the account table is accessible |
-| Release publish fails (file lock) | Close `GM Tool.exe` from `%USERPROFILE%\Desktop\GM Tool\` and rebuild |
+| Release publish fails (file lock) | Close `GM Tool.exe` from `%USERPROFILE%\Documents\YSMReleasedTools\GM-Tool\` and rebuild |
