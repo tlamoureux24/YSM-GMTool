@@ -167,7 +167,7 @@ public partial class EntityBrowserControl : UserControl
         gridRecords.VirtualMode = true;
         gridRecords.AllowUserToAddRows = false;
         gridRecords.AllowUserToDeleteRows = false;
-        gridRecords.MultiSelect = false;
+        gridRecords.MultiSelect = true;
         gridRecords.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         gridRecords.ReadOnly = true;
         gridRecords.RowHeadersVisible = false;

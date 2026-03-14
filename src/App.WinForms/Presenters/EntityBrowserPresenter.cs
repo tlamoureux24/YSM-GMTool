@@ -22,10 +22,6 @@ public sealed class EntityBrowserPresenter<TRecord>
 
     private List<BrowserRow> _allRows = [];
     private List<SearchIndexedRecord<TRecord>> _index = [];
-    private string? _lastFilterQuery;
-    private SearchMode _lastFilterMode = SearchMode.ByName;
-    private int _dataVersion;
-    private int _lastFilteredVersion = -1;
 
     private CancellationTokenSource? _loadCts;
     private CancellationTokenSource? _filterCts;
@@ -77,17 +73,7 @@ public sealed class EntityBrowserPresenter<TRecord>
             var records = await loader(token);
             _index = BuildIndex(records);
             _allRows = _index.Select(x => x.Row).ToList();
-            _dataVersion++;
-            _lastFilterQuery = null;
-
-            var resultRows = (IEnumerable<BrowserRow>)_allRows;
-            var maxRows = _maxRowsSelector?.Invoke();
-            if (maxRows.HasValue && maxRows.Value > 0)
-            {
-                resultRows = resultRows.Take(maxRows.Value);
-            }
-
-            var finalRows = resultRows.ToList();
+            var finalRows = ApplyRowLimit(_allRows);
             _view.SetRows(finalRows);
             _view.SetStatus($"Loaded {_allRows.Count.ToString("N0", CultureInfo.InvariantCulture)} record(s). Showing {finalRows.Count.ToString("N0", CultureInfo.InvariantCulture)}.");
         }
@@ -129,8 +115,6 @@ public sealed class EntityBrowserPresenter<TRecord>
             var records = await _loadAllAsync(_loadCts.Token);
             _index = BuildIndex(records);
             _allRows = _index.Select(x => x.Row).ToList();
-            _dataVersion++;
-            _lastFilterQuery = null;
 
             await ApplyFilterAsync(_view.SearchText, _view.CurrentSearchMode);
         }
@@ -169,16 +153,7 @@ public sealed class EntityBrowserPresenter<TRecord>
                 var records = await _sqlSearchAsync(trimmedQuery, mode, token);
                 _index = BuildIndex(records);
                 _allRows = _index.Select(x => x.Row).ToList();
-                _dataVersion++;
-
-                var resultRows = (IEnumerable<BrowserRow>)_allRows;
-                var maxRows = _maxRowsSelector?.Invoke();
-                if (maxRows.HasValue && maxRows.Value > 0)
-                {
-                    resultRows = resultRows.Take(maxRows.Value);
-                }
-
-                var finalRows = resultRows.ToList();
+                var finalRows = ApplyRowLimit(_allRows);
                 _view.SetRows(finalRows);
                 _view.SetStatus($"Found {_allRows.Count.ToString("N0", CultureInfo.InvariantCulture)} record(s). Showing {finalRows.Count.ToString("N0", CultureInfo.InvariantCulture)}.");
             }
@@ -211,13 +186,6 @@ public sealed class EntityBrowserPresenter<TRecord>
             var normalizedQuery = _normalizer.NormalizeForSearch(query);
             var token = _filterCts.Token;
 
-            if (_lastFilteredVersion == _dataVersion
-                && string.Equals(_lastFilterQuery, normalizedQuery, StringComparison.Ordinal)
-                && _lastFilterMode == mode)
-            {
-                return;
-            }
-
             var rows = await Task.Run(() =>
             {
                 token.ThrowIfCancellationRequested();
@@ -231,6 +199,7 @@ public sealed class EntityBrowserPresenter<TRecord>
                 {
                     resultList = _index
                         .AsParallel()
+                        .AsOrdered()
                         .WithCancellation(token)
                         .Where(indexed => mode switch
                         {
@@ -241,20 +210,11 @@ public sealed class EntityBrowserPresenter<TRecord>
                         .Select(x => x.Row);
                 }
 
-                var maxRows = _maxRowsSelector?.Invoke();
-                if (maxRows.HasValue && maxRows.Value > 0)
-                {
-                    resultList = resultList.Take(maxRows.Value);
-                }
-
-                return (IReadOnlyList<BrowserRow>)resultList.ToList();
+                return ApplyRowLimit(resultList);
             }, token);
 
             _view.SetRows(rows);
             _view.SetStatus($"Loaded {_allRows.Count.ToString("N0", CultureInfo.InvariantCulture)} records. Showing {rows.Count.ToString("N0", CultureInfo.InvariantCulture)}.");
-            _lastFilterQuery = normalizedQuery;
-            _lastFilterMode = mode;
-            _lastFilteredVersion = _dataVersion;
         }
         catch (OperationCanceledException)
         {
@@ -270,7 +230,7 @@ public sealed class EntityBrowserPresenter<TRecord>
     {
         var index = new List<SearchIndexedRecord<TRecord>>();
 
-        foreach (var record in records)
+        foreach (var record in records.OrderBy(_idSelector))
         {
             var row = new BrowserRow(record!, _rowValuesSelector(record));
             var searchableTextParts = (_searchableTextSelector?.Invoke(record) ?? [_nameSelector(record)])
@@ -287,5 +247,16 @@ public sealed class EntityBrowserPresenter<TRecord>
         }
 
         return index;
+    }
+
+    private IReadOnlyList<BrowserRow> ApplyRowLimit(IEnumerable<BrowserRow> rows)
+    {
+        var maxRows = _maxRowsSelector?.Invoke();
+        if (maxRows.HasValue && maxRows.Value > 0)
+        {
+            return rows.Take(maxRows.Value).ToList();
+        }
+
+        return rows.ToList();
     }
 }

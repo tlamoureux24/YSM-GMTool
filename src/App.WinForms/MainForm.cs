@@ -307,6 +307,7 @@ public partial class MainForm : Form
         gridInventory.ColumnHeadersDefaultCellStyle.ForeColor = text;
         gridInventory.ColumnHeadersDefaultCellStyle.SelectionBackColor = header;
         gridInventory.ColumnHeadersDefaultCellStyle.SelectionForeColor = text;
+        gridInventory.MultiSelect = true;
         gridInventory.CellDoubleClick += GenericGrid_CellDoubleClick;
         gridInventory.ColumnHeaderMouseClick += GridInventory_ColumnHeaderMouseClick;
     }
