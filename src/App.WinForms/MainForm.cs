@@ -454,7 +454,7 @@ public partial class MainForm : Form
         };
         if (iconsEnabled)
         {
-            buffsColumns.Insert(0, new BrowserColumnDefinition("buffIcon", "Icon", 24, IsImage: true, ImageSize: 16));
+            buffsColumns.Insert(0, new BrowserColumnDefinition("buffIcon", "Icon", 28, IsImage: true, ImageSize: 20));
         }
         browserBuffs.ConfigureColumns(buffsColumns);
 

@@ -45,6 +45,19 @@
     <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..'))</RepositoryRoot>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="$(RepositoryRoot)\Export\Images-Official9.10.rar">
+      <Link>Export\Images-Official9.10.rar</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+    <None Include="$(RepositoryRoot)\Export\Update Publish.bat">
+      <Link>Update Publish.bat</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+
   <Target Name="AutoPublishReleaseToDesktop"
           AfterTargets="Build"
           Condition="'$(Configuration)' == 'Release' and '$(AutoPublishOnRelease)' == 'true' and '$(IsAutoPublishInvocation)' != 'true'">
